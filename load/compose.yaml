@@ -1,0 +1,136 @@
+name: base-grid-load
+include:
+  - path:
+      - ../backend/compose.yaml
+      - ../load/backend.override.yaml
+services:
+  fixture-generate:
+    profiles: [tools]
+    build: .
+    image: base-grid-load-tools:local
+    entrypoint: [python, population.py]
+    command: ["--count", "100000", "--output", "/data/merchants.jsonl"]
+    volumes: [./data:/data]
+    user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
+  fixture-seed:
+    profiles: [tools]
+    image: base-grid-load-tools:local
+    build: .
+    entrypoint: [python, seed.py]
+    volumes: [./data:/data]
+    user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
+    environment:
+      LOAD_FIXTURE_DATABASES: "true"
+      MERCHANTS_DATABASE_URL: postgresql://merchants:${MERCHANTS_DB_PASSWORD:-merchants_local_only}@merchants-db:5432/merchants
+      CATALOG_DATABASE_URL: postgresql://catalog:${CATALOG_DB_PASSWORD:-catalog_local_only}@catalog-db:5432/catalog
+    networks: [default, merchants-data, catalog-data]
+    depends_on:
+      merchants-api: {condition: service_healthy}
+      catalog-api: {condition: service_healthy}
+  locust-master:
+    profiles: [load]
+    build: .
+    image: base-grid-load-tools:local
+    command: ["--master", "--host", "http://api-gateway", "--csv", "/results/${RUN_ID:-interactive}/locust", "--csv-full-history", "${LOCUST_USER_CLASS:-KenyaMerchant}"]
+    ports:
+      - "127.0.0.1:${LOCUST_PORT:-8089}:8089"
+    volumes: [./data:/data:ro, ./results:/results]
+    environment:
+      RUN_ID: ${RUN_ID:-interactive}
+      LOAD_WORKERS: ${LOAD_WORKERS:-2}
+      WORKLOAD: ${WORKLOAD:-balanced}
+    user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
+  locust-worker:
+    profiles: [load]
+    build: .
+    image: base-grid-load-tools:local
+    command: ["--worker", "--master-host", "locust-master", "${LOCUST_USER_CLASS:-KenyaMerchant}"]
+    volumes: [./data:/data:ro]
+    environment:
+      RUN_ID: ${RUN_ID:-interactive}
+      LOAD_WORKERS: ${LOAD_WORKERS:-2}
+      WORKLOAD: ${WORKLOAD:-balanced}
+      THINK_MIN: ${THINK_MIN:-1}
+      THINK_MAX: ${THINK_MAX:-3}
+      DECLINE_RATE: ${DECLINE_RATE:-0.02}
+    cpus: "1"
+    mem_limit: 1g
+    user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
+    depends_on: [locust-master]
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.160.0
+    command: ["--config=/etc/otelcol/config.yaml"]
+    volumes: [./observability/otel-collector.yaml:/etc/otelcol/config.yaml:ro]
+    depends_on: [tempo]
+    mem_limit: 512m
+  prometheus:
+    image: prom/prometheus:v3.2.1
+    command: ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.retention.time=30d", "--storage.tsdb.retention.size=10GB"]
+    volumes:
+      - ./observability/prometheus.yaml:/etc/prometheus/prometheus.yml:ro
+      - ./observability/rules.yaml:/etc/prometheus/rules.yaml:ro
+      - prometheus-data:/prometheus
+    ports: ["127.0.0.1:${PROMETHEUS_PORT:-9090}:9090"]
+  grafana:
+    image: grafana/grafana:11.6.0
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-base-grid-local}
+      GF_USERS_DEFAULT_THEME: light
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /var/lib/grafana/dashboards/base-grid.json
+    volumes:
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    ports: ["127.0.0.1:${GRAFANA_PORT:-3000}:3000"]
+    depends_on: [prometheus, tempo]
+  tempo:
+    image: grafana/tempo:2.7.2
+    command: ["-config.file=/etc/tempo.yaml"]
+    volumes: [./observability/tempo.yaml:/etc/tempo.yaml:ro, tempo-data:/var/tempo]
+  cadvisor:
+    image: ghcr.io/google/cadvisor:0.55.1
+    privileged: true
+    command: ["--docker_only=true", "--housekeeping_interval=5s", "--store_container_labels=true"]
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+      - /dev/disk:/dev/disk:ro
+    devices: [/dev/kmsg:/dev/kmsg]
+  merchants-metrics:
+    build: .
+    image: base-grid-load-tools:local
+    entrypoint: [python, db_metrics.py]
+    environment:
+      DB_SERVICE: merchants
+      DATABASE_URL: postgresql://merchants:${MERCHANTS_DB_PASSWORD:-merchants_local_only}@merchants-db:5432/merchants
+    networks: [default, merchants-data]
+    depends_on:
+      merchants-db: {condition: service_healthy}
+  catalog-metrics:
+    build: .
+    image: base-grid-load-tools:local
+    entrypoint: [python, db_metrics.py]
+    environment:
+      DB_SERVICE: catalog
+      DATABASE_URL: postgresql://catalog:${CATALOG_DB_PASSWORD:-catalog_local_only}@catalog-db:5432/catalog
+    networks: [default, catalog-data]
+    depends_on:
+      catalog-db: {condition: service_healthy}
+  orders-metrics:
+    build: .
+    image: base-grid-load-tools:local
+    entrypoint: [python, db_metrics.py]
+    environment:
+      DB_SERVICE: orders
+      DATABASE_URL: postgresql://orders:${ORDERS_DB_PASSWORD:-orders_local_only}@orders-db:5432/orders
+    networks: [default, orders-data]
+    depends_on:
+      orders-db: {condition: service_healthy}
+volumes:
+  prometheus-data:
+  grafana-data:
+  tempo-data:

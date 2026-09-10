@@ -1,0 +1,1506 @@
+[
+  {
+    "county": "Nairobi",
+    "town": "Nairobi",
+    "lat": -1.28333,
+    "lng": 36.81667,
+    "geoname_id": 184745,
+    "capital": true
+  },
+  {
+    "county": "Nairobi",
+    "town": "Thika",
+    "lat": -1.03326,
+    "lng": 37.06933,
+    "geoname_id": 179330,
+    "capital": false
+  },
+  {
+    "county": "Nairobi",
+    "town": "Imara Daima Estate",
+    "lat": -1.32323,
+    "lng": 36.88021,
+    "geoname_id": 8477754,
+    "capital": false
+  },
+  {
+    "county": "Nairobi",
+    "town": "Air Base",
+    "lat": -1.27009,
+    "lng": 36.86034,
+    "geoname_id": 11427366,
+    "capital": false
+  },
+  {
+    "county": "Baringo",
+    "town": "Kabarnet",
+    "lat": 0.49194,
+    "lng": 35.74303,
+    "geoname_id": 195821,
+    "capital": true
+  },
+  {
+    "county": "Baringo",
+    "town": "Eldama Ravine",
+    "lat": 0.05196,
+    "lng": 35.72734,
+    "geoname_id": 198636,
+    "capital": false
+  },
+  {
+    "county": "Baringo",
+    "town": "Mogotio",
+    "lat": -0.02236,
+    "lng": 35.96124,
+    "geoname_id": 186369,
+    "capital": false
+  },
+  {
+    "county": "Baringo",
+    "town": "Marigat",
+    "lat": 0.47119,
+    "lng": 35.98638,
+    "geoname_id": 187641,
+    "capital": false
+  },
+  {
+    "county": "Bomet",
+    "town": "Bomet",
+    "lat": -0.78129,
+    "lng": 35.34156,
+    "geoname_id": 200308,
+    "capital": true
+  },
+  {
+    "county": "Bomet",
+    "town": "Sotik",
+    "lat": -0.69069,
+    "lng": 35.11102,
+    "geoname_id": 179888,
+    "capital": false
+  },
+  {
+    "county": "Bomet",
+    "town": "Mulot",
+    "lat": -0.93752,
+    "lng": 35.42162,
+    "geoname_id": 185745,
+    "capital": false
+  },
+  {
+    "county": "Bomet",
+    "town": "Aisaik",
+    "lat": -0.72061,
+    "lng": 35.34081,
+    "geoname_id": 201202,
+    "capital": false
+  },
+  {
+    "county": "Bungoma",
+    "town": "Bungoma",
+    "lat": 0.5635,
+    "lng": 34.56055,
+    "geoname_id": 200067,
+    "capital": true
+  },
+  {
+    "county": "Bungoma",
+    "town": "Kimilili",
+    "lat": 0.78775,
+    "lng": 34.71562,
+    "geoname_id": 191919,
+    "capital": false
+  },
+  {
+    "county": "Bungoma",
+    "town": "Webuye",
+    "lat": 0.6004,
+    "lng": 34.77119,
+    "geoname_id": 178202,
+    "capital": false
+  },
+  {
+    "county": "Bungoma",
+    "town": "Chwele",
+    "lat": 0.76239,
+    "lng": 34.54852,
+    "geoname_id": 199263,
+    "capital": false
+  },
+  {
+    "county": "Busia",
+    "town": "Busia",
+    "lat": 0.46005,
+    "lng": 34.11169,
+    "geoname_id": 199989,
+    "capital": true
+  },
+  {
+    "county": "Busia",
+    "town": "Lugulu",
+    "lat": 0.39337,
+    "lng": 34.30399,
+    "geoname_id": 188657,
+    "capital": false
+  },
+  {
+    "county": "Busia",
+    "town": "Malaba",
+    "lat": 0.63513,
+    "lng": 34.28165,
+    "geoname_id": 188025,
+    "capital": false
+  },
+  {
+    "county": "Busia",
+    "town": "Port Victoria",
+    "lat": 0.09809,
+    "lng": 33.97248,
+    "geoname_id": 200061,
+    "capital": false
+  },
+  {
+    "county": "Elegeyo-Marakwet",
+    "town": "Iten",
+    "lat": 0.67028,
+    "lng": 35.50806,
+    "geoname_id": 196185,
+    "capital": true
+  },
+  {
+    "county": "Elegeyo-Marakwet",
+    "town": "Kapsowar",
+    "lat": 0.9789,
+    "lng": 35.55854,
+    "geoname_id": 193985,
+    "capital": false
+  },
+  {
+    "county": "Elegeyo-Marakwet",
+    "town": "Anin",
+    "lat": 0.69091,
+    "lng": 35.53432,
+    "geoname_id": 200961,
+    "capital": false
+  },
+  {
+    "county": "Elegeyo-Marakwet",
+    "town": "Biretwo",
+    "lat": 0.53883,
+    "lng": 35.55605,
+    "geoname_id": 200421,
+    "capital": false
+  },
+  {
+    "county": "Embu",
+    "town": "Embu",
+    "lat": -0.53987,
+    "lng": 37.45743,
+    "geoname_id": 198476,
+    "capital": true
+  },
+  {
+    "county": "Embu",
+    "town": "Runyenjes",
+    "lat": -0.42304,
+    "lng": 37.57043,
+    "geoname_id": 180981,
+    "capital": false
+  },
+  {
+    "county": "Embu",
+    "town": "Siakago",
+    "lat": -0.57728,
+    "lng": 37.63996,
+    "geoname_id": 180337,
+    "capital": false
+  },
+  {
+    "county": "Embu",
+    "town": "Chiamanda",
+    "lat": -0.41834,
+    "lng": 37.63685,
+    "geoname_id": 199405,
+    "capital": false
+  },
+  {
+    "county": "Garissa",
+    "town": "Garissa",
+    "lat": -0.45275,
+    "lng": 39.64601,
+    "geoname_id": 197745,
+    "capital": true
+  },
+  {
+    "county": "Garissa",
+    "town": "Mado Gashi",
+    "lat": 0.73112,
+    "lng": 39.17388,
+    "geoname_id": 188442,
+    "capital": false
+  },
+  {
+    "county": "Garissa",
+    "town": "Ijara",
+    "lat": -1.59517,
+    "lng": 40.51444,
+    "geoname_id": 196612,
+    "capital": false
+  },
+  {
+    "county": "Garissa",
+    "town": "Dadaab",
+    "lat": 0.05244,
+    "lng": 40.30855,
+    "geoname_id": 199209,
+    "capital": false
+  },
+  {
+    "county": "Homa Bay",
+    "town": "Homa Bay",
+    "lat": -0.52731,
+    "lng": 34.45714,
+    "geoname_id": 196742,
+    "capital": true
+  },
+  {
+    "county": "Homa Bay",
+    "town": "Oyugis",
+    "lat": -0.50974,
+    "lng": 34.73067,
+    "geoname_id": 181702,
+    "capital": false
+  },
+  {
+    "county": "Homa Bay",
+    "town": "Awendo",
+    "lat": -0.5,
+    "lng": 34.4,
+    "geoname_id": 11003038,
+    "capital": false
+  },
+  {
+    "county": "Homa Bay",
+    "town": "Mbita",
+    "lat": -0.42492,
+    "lng": 34.20736,
+    "geoname_id": 187028,
+    "capital": false
+  },
+  {
+    "county": "Isiolo",
+    "town": "Isiolo",
+    "lat": 0.35462,
+    "lng": 37.58218,
+    "geoname_id": 196231,
+    "capital": true
+  },
+  {
+    "county": "Isiolo",
+    "town": "Garba Tula",
+    "lat": 0.53392,
+    "lng": 38.51878,
+    "geoname_id": 197768,
+    "capital": false
+  },
+  {
+    "county": "Isiolo",
+    "town": "Kinna",
+    "lat": 0.31883,
+    "lng": 38.20499,
+    "geoname_id": 191800,
+    "capital": false
+  },
+  {
+    "county": "Isiolo",
+    "town": "Merti",
+    "lat": 1.06725,
+    "lng": 38.6662,
+    "geoname_id": 186831,
+    "capital": false
+  },
+  {
+    "county": "Kajiado",
+    "town": "Kajiado",
+    "lat": -1.85238,
+    "lng": 36.77683,
+    "geoname_id": 195298,
+    "capital": true
+  },
+  {
+    "county": "Kajiado",
+    "town": "Ongata Rongai",
+    "lat": -1.3953,
+    "lng": 36.764,
+    "geoname_id": 189723,
+    "capital": false
+  },
+  {
+    "county": "Kajiado",
+    "town": "Kitengela",
+    "lat": -1.47612,
+    "lng": 36.96144,
+    "geoname_id": 7931934,
+    "capital": false
+  },
+  {
+    "county": "Kajiado",
+    "town": "Ngong",
+    "lat": -1.3527,
+    "lng": 36.6699,
+    "geoname_id": 183595,
+    "capital": false
+  },
+  {
+    "county": "Kakamega",
+    "town": "Kakamega",
+    "lat": 0.28422,
+    "lng": 34.75229,
+    "geoname_id": 195272,
+    "capital": true
+  },
+  {
+    "county": "Kakamega",
+    "town": "Khwisero",
+    "lat": 0.17124,
+    "lng": 34.59466,
+    "geoname_id": 192785,
+    "capital": false
+  },
+  {
+    "county": "Kakamega",
+    "town": "Mumias",
+    "lat": 0.33474,
+    "lng": 34.48796,
+    "geoname_id": 185702,
+    "capital": false
+  },
+  {
+    "county": "Kakamega",
+    "town": "Butere",
+    "lat": 0.20694,
+    "lng": 34.49006,
+    "geoname_id": 199971,
+    "capital": false
+  },
+  {
+    "county": "Kericho",
+    "town": "Kericho",
+    "lat": -0.36774,
+    "lng": 35.28314,
+    "geoname_id": 192900,
+    "capital": true
+  },
+  {
+    "county": "Kericho",
+    "town": "Litein",
+    "lat": -0.58249,
+    "lng": 35.18969,
+    "geoname_id": 189367,
+    "capital": false
+  },
+  {
+    "county": "Kericho",
+    "town": "Brooke",
+    "lat": -0.33408,
+    "lng": 35.32537,
+    "geoname_id": 12718645,
+    "capital": false
+  },
+  {
+    "county": "Kericho",
+    "town": "Sondu",
+    "lat": -0.3906,
+    "lng": 35.01266,
+    "geoname_id": 179949,
+    "capital": false
+  },
+  {
+    "county": "Kiambu",
+    "town": "Kiambu",
+    "lat": -1.17139,
+    "lng": 36.83556,
+    "geoname_id": 192710,
+    "capital": true
+  },
+  {
+    "county": "Kiambu",
+    "town": "Ruiru",
+    "lat": -1.14665,
+    "lng": 36.96087,
+    "geoname_id": 181032,
+    "capital": false
+  },
+  {
+    "county": "Kiambu",
+    "town": "Kikuyu",
+    "lat": -1.24627,
+    "lng": 36.66291,
+    "geoname_id": 192126,
+    "capital": false
+  },
+  {
+    "county": "Kiambu",
+    "town": "Karuri",
+    "lat": -1.17641,
+    "lng": 36.7564,
+    "geoname_id": 193624,
+    "capital": false
+  },
+  {
+    "county": "Kilifi",
+    "town": "Kilifi",
+    "lat": -3.63045,
+    "lng": 39.84992,
+    "geoname_id": 192067,
+    "capital": true
+  },
+  {
+    "county": "Kilifi",
+    "town": "Malindi",
+    "lat": -3.21799,
+    "lng": 40.11692,
+    "geoname_id": 187968,
+    "capital": false
+  },
+  {
+    "county": "Kilifi",
+    "town": "Mtwapa",
+    "lat": -3.93938,
+    "lng": 39.74877,
+    "geoname_id": 11002530,
+    "capital": false
+  },
+  {
+    "county": "Kilifi",
+    "town": "Mariakani",
+    "lat": -3.86261,
+    "lng": 39.47458,
+    "geoname_id": 187661,
+    "capital": false
+  },
+  {
+    "county": "Kirinyaga",
+    "town": "Kerugoya",
+    "lat": -0.49887,
+    "lng": 37.28031,
+    "geoname_id": 192859,
+    "capital": true
+  },
+  {
+    "county": "Kirinyaga",
+    "town": "Wanguru",
+    "lat": -0.68393,
+    "lng": 37.35701,
+    "geoname_id": 178323,
+    "capital": false
+  },
+  {
+    "county": "Kirinyaga",
+    "town": "Kagio",
+    "lat": -0.62482,
+    "lng": 37.25551,
+    "geoname_id": 195539,
+    "capital": false
+  },
+  {
+    "county": "Kirinyaga",
+    "town": "Sagana",
+    "lat": -0.66806,
+    "lng": 37.20875,
+    "geoname_id": 180868,
+    "capital": false
+  },
+  {
+    "county": "Kisii",
+    "town": "Kisii",
+    "lat": -0.68174,
+    "lng": 34.76666,
+    "geoname_id": 191299,
+    "capital": true
+  },
+  {
+    "county": "Kisii",
+    "town": "Ogembo",
+    "lat": -0.80116,
+    "lng": 34.72579,
+    "geoname_id": 182498,
+    "capital": false
+  },
+  {
+    "county": "Kisii",
+    "town": "Nyambunwa",
+    "lat": -0.67783,
+    "lng": 34.70722,
+    "geoname_id": 182894,
+    "capital": false
+  },
+  {
+    "county": "Kisii",
+    "town": "Mosocho",
+    "lat": -0.58864,
+    "lng": 34.73379,
+    "geoname_id": 186226,
+    "capital": false
+  },
+  {
+    "county": "Kisumu",
+    "town": "Kisumu",
+    "lat": -0.10221,
+    "lng": 34.76171,
+    "geoname_id": 191245,
+    "capital": true
+  },
+  {
+    "county": "Kisumu",
+    "town": "Muhoroni",
+    "lat": -0.15816,
+    "lng": 35.19645,
+    "geoname_id": 185939,
+    "capital": false
+  },
+  {
+    "county": "Kisumu",
+    "town": "Ahero",
+    "lat": -0.17359,
+    "lng": 34.9189,
+    "geoname_id": 201229,
+    "capital": false
+  },
+  {
+    "county": "Kisumu",
+    "town": "Maseno",
+    "lat": -0.00661,
+    "lng": 34.60004,
+    "geoname_id": 187506,
+    "capital": false
+  },
+  {
+    "county": "Kitui",
+    "town": "Kitui",
+    "lat": -1.36696,
+    "lng": 38.01055,
+    "geoname_id": 191038,
+    "capital": true
+  },
+  {
+    "county": "Kitui",
+    "town": "Mwingi",
+    "lat": -0.93605,
+    "lng": 38.05955,
+    "geoname_id": 184921,
+    "capital": false
+  },
+  {
+    "county": "Kitui",
+    "town": "Kavati",
+    "lat": -1.23403,
+    "lng": 37.91571,
+    "geoname_id": 195808,
+    "capital": false
+  },
+  {
+    "county": "Kitui",
+    "town": "Bondeni",
+    "lat": -1.38049,
+    "lng": 38.38793,
+    "geoname_id": 11867869,
+    "capital": false
+  },
+  {
+    "county": "Kwale",
+    "town": "Kwale",
+    "lat": -4.17375,
+    "lng": 39.45206,
+    "geoname_id": 190108,
+    "capital": true
+  },
+  {
+    "county": "Kwale",
+    "town": "Matuga",
+    "lat": -4.168,
+    "lng": 39.57068,
+    "geoname_id": 187269,
+    "capital": false
+  },
+  {
+    "county": "Kwale",
+    "town": "Ukunda",
+    "lat": -4.2929,
+    "lng": 39.56404,
+    "geoname_id": 178792,
+    "capital": false
+  },
+  {
+    "county": "Kwale",
+    "town": "Mazeras",
+    "lat": -3.96426,
+    "lng": 39.5498,
+    "geoname_id": 187150,
+    "capital": false
+  },
+  {
+    "county": "Laikipia",
+    "town": "Rumuruti",
+    "lat": 0.2725,
+    "lng": 36.53806,
+    "geoname_id": 180992,
+    "capital": true
+  },
+  {
+    "county": "Laikipia",
+    "town": "Nanyuki",
+    "lat": 0.00624,
+    "lng": 37.07398,
+    "geoname_id": 184433,
+    "capital": false
+  },
+  {
+    "county": "Laikipia",
+    "town": "Nyahururu",
+    "lat": 0.03813,
+    "lng": 36.36339,
+    "geoname_id": 183027,
+    "capital": false
+  },
+  {
+    "county": "Laikipia",
+    "town": "Kiambur",
+    "lat": 0.40778,
+    "lng": 36.29533,
+    "geoname_id": 11947712,
+    "capital": false
+  },
+  {
+    "county": "Lamu",
+    "town": "Lamu",
+    "lat": -2.27169,
+    "lng": 40.90201,
+    "geoname_id": 189741,
+    "capital": true
+  },
+  {
+    "county": "Lamu",
+    "town": "Mpeketoni",
+    "lat": -2.38913,
+    "lng": 40.69812,
+    "geoname_id": 10340477,
+    "capital": false
+  },
+  {
+    "county": "Lamu",
+    "town": "Witu",
+    "lat": -2.38892,
+    "lng": 40.43827,
+    "geoname_id": 178093,
+    "capital": false
+  },
+  {
+    "county": "Lamu",
+    "town": "Mokowe",
+    "lat": -2.23679,
+    "lng": 40.84555,
+    "geoname_id": 186325,
+    "capital": false
+  },
+  {
+    "county": "Machakos",
+    "town": "Machakos",
+    "lat": -1.52233,
+    "lng": 37.26521,
+    "geoname_id": 188492,
+    "capital": true
+  },
+  {
+    "county": "Machakos",
+    "town": "Mwala",
+    "lat": -1.35255,
+    "lng": 37.45482,
+    "geoname_id": 185131,
+    "capital": false
+  },
+  {
+    "county": "Machakos",
+    "town": "Mlolongo",
+    "lat": -1.39639,
+    "lng": 36.94028,
+    "geoname_id": 9166066,
+    "capital": false
+  },
+  {
+    "county": "Machakos",
+    "town": "Athi River",
+    "lat": -1.4563,
+    "lng": 36.97826,
+    "geoname_id": 200787,
+    "capital": false
+  },
+  {
+    "county": "Makueni",
+    "town": "Wote",
+    "lat": -1.78079,
+    "lng": 37.62882,
+    "geoname_id": 178077,
+    "capital": true
+  },
+  {
+    "county": "Makueni",
+    "town": "Makueni Boma",
+    "lat": -1.80388,
+    "lng": 37.62405,
+    "geoname_id": 188080,
+    "capital": false
+  },
+  {
+    "county": "Makueni",
+    "town": "Emali",
+    "lat": -2.08033,
+    "lng": 37.47202,
+    "geoname_id": 198537,
+    "capital": false
+  },
+  {
+    "county": "Makueni",
+    "town": "Makindu",
+    "lat": -2.27808,
+    "lng": 37.81867,
+    "geoname_id": 188123,
+    "capital": false
+  },
+  {
+    "county": "Mandera",
+    "town": "Mandera",
+    "lat": 3.93726,
+    "lng": 41.85688,
+    "geoname_id": 187896,
+    "capital": true
+  },
+  {
+    "county": "Mandera",
+    "town": "El Wak",
+    "lat": 2.80922,
+    "lng": 40.92885,
+    "geoname_id": 198547,
+    "capital": false
+  },
+  {
+    "county": "Mandera",
+    "town": "Ramu",
+    "lat": 3.93147,
+    "lng": 41.22295,
+    "geoname_id": 181374,
+    "capital": false
+  },
+  {
+    "county": "Mandera",
+    "town": "Lafey",
+    "lat": 3.15106,
+    "lng": 41.18577,
+    "geoname_id": 9406963,
+    "capital": false
+  },
+  {
+    "county": "Marsabit",
+    "town": "Marsabit",
+    "lat": 2.33468,
+    "lng": 37.99086,
+    "geoname_id": 187585,
+    "capital": true
+  },
+  {
+    "county": "Marsabit",
+    "town": "Moyale",
+    "lat": 3.52661,
+    "lng": 39.0561,
+    "geoname_id": 186180,
+    "capital": false
+  },
+  {
+    "county": "Marsabit",
+    "town": "North Horr",
+    "lat": 3.32205,
+    "lng": 37.07032,
+    "geoname_id": 183231,
+    "capital": false
+  },
+  {
+    "county": "Marsabit",
+    "town": "Laisamis",
+    "lat": 1.5932,
+    "lng": 37.80595,
+    "geoname_id": 189783,
+    "capital": false
+  },
+  {
+    "county": "Meru",
+    "town": "Meru",
+    "lat": 0.04626,
+    "lng": 37.65587,
+    "geoname_id": 186827,
+    "capital": true
+  },
+  {
+    "county": "Meru",
+    "town": "Maua",
+    "lat": 0.2332,
+    "lng": 37.94086,
+    "geoname_id": 187231,
+    "capital": false
+  },
+  {
+    "county": "Meru",
+    "town": "Timau",
+    "lat": 0.0835,
+    "lng": 37.23925,
+    "geoname_id": 179204,
+    "capital": false
+  },
+  {
+    "county": "Meru",
+    "town": "Nkubu",
+    "lat": -0.06929,
+    "lng": 37.66618,
+    "geoname_id": 183296,
+    "capital": false
+  },
+  {
+    "county": "Migori",
+    "town": "Migori",
+    "lat": -1.06343,
+    "lng": 34.47313,
+    "geoname_id": 186731,
+    "capital": true
+  },
+  {
+    "county": "Migori",
+    "town": "Isebania",
+    "lat": -1.22511,
+    "lng": 34.46385,
+    "geoname_id": 196251,
+    "capital": false
+  },
+  {
+    "county": "Migori",
+    "town": "Kihancha",
+    "lat": -1.19347,
+    "lng": 34.61967,
+    "geoname_id": 191837,
+    "capital": false
+  },
+  {
+    "county": "Migori",
+    "town": "Rongo",
+    "lat": -0.75675,
+    "lng": 34.59833,
+    "geoname_id": 181122,
+    "capital": false
+  },
+  {
+    "county": "Mombasa",
+    "town": "Mombasa",
+    "lat": -4.05466,
+    "lng": 39.66359,
+    "geoname_id": 186301,
+    "capital": true
+  },
+  {
+    "county": "Mombasa",
+    "town": "Jomvu",
+    "lat": -3.98623,
+    "lng": 39.6082,
+    "geoname_id": 195915,
+    "capital": false
+  },
+  {
+    "county": "Mombasa",
+    "town": "Bamburi",
+    "lat": -4.0,
+    "lng": 39.71667,
+    "geoname_id": 200656,
+    "capital": false
+  },
+  {
+    "county": "Mombasa",
+    "town": "Bamburi Beach",
+    "lat": -3.98822,
+    "lng": 39.73678,
+    "geoname_id": 8126046,
+    "capital": false
+  },
+  {
+    "county": "Murang'A",
+    "town": "Murang’a",
+    "lat": -0.72104,
+    "lng": 37.15259,
+    "geoname_id": 185579,
+    "capital": true
+  },
+  {
+    "county": "Murang'A",
+    "town": "Karuri",
+    "lat": -0.7,
+    "lng": 37.18333,
+    "geoname_id": 193627,
+    "capital": false
+  },
+  {
+    "county": "Murang'A",
+    "town": "Kenol",
+    "lat": -0.9373,
+    "lng": 37.12275,
+    "geoname_id": 12718626,
+    "capital": false
+  },
+  {
+    "county": "Murang'A",
+    "town": "Maragua",
+    "lat": -0.79602,
+    "lng": 37.13292,
+    "geoname_id": 187733,
+    "capital": false
+  },
+  {
+    "county": "Nakuru",
+    "town": "Nakuru",
+    "lat": -0.30719,
+    "lng": 36.07225,
+    "geoname_id": 184622,
+    "capital": true
+  },
+  {
+    "county": "Nakuru",
+    "town": "Naivasha",
+    "lat": -0.71383,
+    "lng": 36.43261,
+    "geoname_id": 184707,
+    "capital": false
+  },
+  {
+    "county": "Nakuru",
+    "town": "Gilgil",
+    "lat": -0.50397,
+    "lng": 36.31845,
+    "geoname_id": 197334,
+    "capital": false
+  },
+  {
+    "county": "Nakuru",
+    "town": "Molo",
+    "lat": -0.24849,
+    "lng": 35.73194,
+    "geoname_id": 186315,
+    "capital": false
+  },
+  {
+    "county": "Nandi",
+    "town": "Kapsabet",
+    "lat": 0.20387,
+    "lng": 35.105,
+    "geoname_id": 194038,
+    "capital": true
+  },
+  {
+    "county": "Nandi",
+    "town": "Nandi Hills",
+    "lat": 0.10366,
+    "lng": 35.18426,
+    "geoname_id": 184471,
+    "capital": false
+  },
+  {
+    "county": "Nandi",
+    "town": "Mosoriot",
+    "lat": 0.32059,
+    "lng": 35.17599,
+    "geoname_id": 186216,
+    "capital": false
+  },
+  {
+    "county": "Nandi",
+    "town": "Baraton",
+    "lat": 0.25517,
+    "lng": 35.0827,
+    "geoname_id": 200604,
+    "capital": false
+  },
+  {
+    "county": "Narok",
+    "town": "Narok",
+    "lat": -1.08083,
+    "lng": 35.87111,
+    "geoname_id": 184379,
+    "capital": true
+  },
+  {
+    "county": "Narok",
+    "town": "Kilgoris",
+    "lat": -1.00819,
+    "lng": 34.87809,
+    "geoname_id": 192079,
+    "capital": false
+  },
+  {
+    "county": "Narok",
+    "town": "Lolgorien",
+    "lat": -1.22906,
+    "lng": 34.80711,
+    "geoname_id": 189092,
+    "capital": false
+  },
+  {
+    "county": "Narok",
+    "town": "Olulung’a",
+    "lat": -1.00268,
+    "lng": 35.66336,
+    "geoname_id": 182095,
+    "capital": false
+  },
+  {
+    "county": "Nyamira",
+    "town": "Nyamira",
+    "lat": -0.56333,
+    "lng": 34.93583,
+    "geoname_id": 182880,
+    "capital": true
+  },
+  {
+    "county": "Nyamira",
+    "town": "Keroka",
+    "lat": -0.77612,
+    "lng": 34.94678,
+    "geoname_id": 192869,
+    "capital": false
+  },
+  {
+    "county": "Nyamira",
+    "town": "Nyansiongo",
+    "lat": -0.7596,
+    "lng": 35.0148,
+    "geoname_id": 12718634,
+    "capital": false
+  },
+  {
+    "county": "Nyamira",
+    "town": "Jebilat",
+    "lat": -0.69356,
+    "lng": 35.07132,
+    "geoname_id": 195977,
+    "capital": false
+  },
+  {
+    "county": "Nyandarua",
+    "town": "Ol Kalou",
+    "lat": -0.27088,
+    "lng": 36.37917,
+    "geoname_id": 7931933,
+    "capital": true
+  },
+  {
+    "county": "Nyandarua",
+    "town": "Upper Gilgil",
+    "lat": -0.21209,
+    "lng": 36.27248,
+    "geoname_id": 197335,
+    "capital": false
+  },
+  {
+    "county": "Nyandarua",
+    "town": "Mairo Inya",
+    "lat": 0.02538,
+    "lng": 36.40865,
+    "geoname_id": 12687281,
+    "capital": false
+  },
+  {
+    "county": "Nyandarua",
+    "town": "Ol Kalau South Settlement",
+    "lat": -0.27444,
+    "lng": 36.33999,
+    "geoname_id": 11829943,
+    "capital": false
+  },
+  {
+    "county": "Nyeri",
+    "town": "Nyeri",
+    "lat": -0.42013,
+    "lng": 36.94759,
+    "geoname_id": 182701,
+    "capital": true
+  },
+  {
+    "county": "Nyeri",
+    "town": "Tetu",
+    "lat": -0.43419,
+    "lng": 36.91681,
+    "geoname_id": 179438,
+    "capital": false
+  },
+  {
+    "county": "Nyeri",
+    "town": "Karatina",
+    "lat": -0.4841,
+    "lng": 37.12662,
+    "geoname_id": 193827,
+    "capital": false
+  },
+  {
+    "county": "Nyeri",
+    "town": "Naro Moru",
+    "lat": -0.16357,
+    "lng": 37.01773,
+    "geoname_id": 184367,
+    "capital": false
+  },
+  {
+    "county": "Samburu",
+    "town": "Maralal",
+    "lat": 1.09667,
+    "lng": 36.69806,
+    "geoname_id": 187725,
+    "capital": true
+  },
+  {
+    "county": "Samburu",
+    "town": "Archers Post",
+    "lat": 0.63967,
+    "lng": 37.66596,
+    "geoname_id": 200891,
+    "capital": false
+  },
+  {
+    "county": "Samburu",
+    "town": "Wamba",
+    "lat": 0.98016,
+    "lng": 37.32349,
+    "geoname_id": 178389,
+    "capital": false
+  },
+  {
+    "county": "Samburu",
+    "town": "Baragoi",
+    "lat": 1.78398,
+    "lng": 36.78597,
+    "geoname_id": 200619,
+    "capital": false
+  },
+  {
+    "county": "Siaya",
+    "town": "Siaya",
+    "lat": 0.0607,
+    "lng": 34.28806,
+    "geoname_id": 383388,
+    "capital": true
+  },
+  {
+    "county": "Siaya",
+    "town": "Bondo",
+    "lat": -0.0962,
+    "lng": 34.27322,
+    "geoname_id": 200305,
+    "capital": false
+  },
+  {
+    "county": "Siaya",
+    "town": "Bondo",
+    "lat": 0.23522,
+    "lng": 34.28086,
+    "geoname_id": 200304,
+    "capital": false
+  },
+  {
+    "county": "Siaya",
+    "town": "Usenge",
+    "lat": -0.06731,
+    "lng": 34.0566,
+    "geoname_id": 8605149,
+    "capital": false
+  },
+  {
+    "county": "Taita Taveta",
+    "town": "Mwatate",
+    "lat": -3.505,
+    "lng": 38.37722,
+    "geoname_id": 185014,
+    "capital": true
+  },
+  {
+    "county": "Taita Taveta",
+    "town": "Voi",
+    "lat": -3.39605,
+    "lng": 38.55609,
+    "geoname_id": 178522,
+    "capital": false
+  },
+  {
+    "county": "Taita Taveta",
+    "town": "Taveta",
+    "lat": -3.39879,
+    "lng": 37.68336,
+    "geoname_id": 179525,
+    "capital": false
+  },
+  {
+    "county": "Taita Taveta",
+    "town": "Wundanyi",
+    "lat": -3.39642,
+    "lng": 38.35729,
+    "geoname_id": 178073,
+    "capital": false
+  },
+  {
+    "county": "Tana River",
+    "town": "Hola",
+    "lat": -1.48256,
+    "lng": 40.03341,
+    "geoname_id": 196752,
+    "capital": true
+  },
+  {
+    "county": "Tana River",
+    "town": "Masalani",
+    "lat": -1.69405,
+    "lng": 40.17015,
+    "geoname_id": 187532,
+    "capital": false
+  },
+  {
+    "county": "Tana River",
+    "town": "Bura Tana",
+    "lat": -1.19326,
+    "lng": 39.84049,
+    "geoname_id": 12718628,
+    "capital": false
+  },
+  {
+    "county": "Tana River",
+    "town": "Garsen",
+    "lat": -2.26645,
+    "lng": 40.10975,
+    "geoname_id": 197729,
+    "capital": false
+  },
+  {
+    "county": "Tharaka - Nithi",
+    "town": "Kathwana",
+    "lat": -0.33139,
+    "lng": 37.86861,
+    "geoname_id": 11764747,
+    "capital": true
+  },
+  {
+    "county": "Tharaka - Nithi",
+    "town": "Chuka",
+    "lat": -0.33316,
+    "lng": 37.64587,
+    "geoname_id": 199284,
+    "capital": false
+  },
+  {
+    "county": "Tharaka - Nithi",
+    "town": "Chogoria",
+    "lat": -0.22954,
+    "lng": 37.62732,
+    "geoname_id": 199334,
+    "capital": false
+  },
+  {
+    "county": "Tharaka - Nithi",
+    "town": "Marimanti",
+    "lat": -0.15457,
+    "lng": 37.97625,
+    "geoname_id": 10400158,
+    "capital": false
+  },
+  {
+    "county": "Trans Nzoia",
+    "town": "Kitale",
+    "lat": 1.01572,
+    "lng": 35.00622,
+    "geoname_id": 191220,
+    "capital": true
+  },
+  {
+    "county": "Trans Nzoia",
+    "town": "Kiminini",
+    "lat": 0.89284,
+    "lng": 34.92468,
+    "geoname_id": 191908,
+    "capital": false
+  },
+  {
+    "county": "Trans Nzoia",
+    "town": "Kapcherop",
+    "lat": 1.04026,
+    "lng": 35.32121,
+    "geoname_id": 194184,
+    "capital": false
+  },
+  {
+    "county": "Trans Nzoia",
+    "town": "Cherangani",
+    "lat": 0.98237,
+    "lng": 35.22109,
+    "geoname_id": 199461,
+    "capital": false
+  },
+  {
+    "county": "Turkana",
+    "town": "Lodwar",
+    "lat": 3.11988,
+    "lng": 35.59642,
+    "geoname_id": 189280,
+    "capital": true
+  },
+  {
+    "county": "Turkana",
+    "town": "Kakuma",
+    "lat": 3.71363,
+    "lng": 34.8572,
+    "geoname_id": 195197,
+    "capital": false
+  },
+  {
+    "county": "Turkana",
+    "town": "Lokichar",
+    "lat": 2.38116,
+    "lng": 35.65123,
+    "geoname_id": 189190,
+    "capital": false
+  },
+  {
+    "county": "Turkana",
+    "town": "Lokichokio",
+    "lat": 4.20771,
+    "lng": 34.35378,
+    "geoname_id": 189189,
+    "capital": false
+  },
+  {
+    "county": "Uasin Gishu",
+    "town": "Eldoret",
+    "lat": 0.52036,
+    "lng": 35.26993,
+    "geoname_id": 198629,
+    "capital": true
+  },
+  {
+    "county": "Uasin Gishu",
+    "town": "Moi‘s Bridge",
+    "lat": 0.87178,
+    "lng": 35.12213,
+    "geoname_id": 196761,
+    "capital": false
+  },
+  {
+    "county": "Uasin Gishu",
+    "town": "Matunda",
+    "lat": 0.84443,
+    "lng": 35.13716,
+    "geoname_id": 187257,
+    "capital": false
+  },
+  {
+    "county": "Uasin Gishu",
+    "town": "Burnt Forest",
+    "lat": 0.21684,
+    "lng": 35.4325,
+    "geoname_id": 200013,
+    "capital": false
+  },
+  {
+    "county": "Vihiga",
+    "town": "Mbale",
+    "lat": 0.08213,
+    "lng": 34.72139,
+    "geoname_id": 187113,
+    "capital": true
+  },
+  {
+    "county": "Vihiga",
+    "town": "Luanda",
+    "lat": 0.02333,
+    "lng": 34.58661,
+    "geoname_id": 188715,
+    "capital": false
+  },
+  {
+    "county": "Vihiga",
+    "town": "Chavakali",
+    "lat": 0.11768,
+    "lng": 34.73339,
+    "geoname_id": 199796,
+    "capital": false
+  },
+  {
+    "county": "Vihiga",
+    "town": "Majengo",
+    "lat": 0.04944,
+    "lng": 34.72476,
+    "geoname_id": 188220,
+    "capital": false
+  },
+  {
+    "county": "Wajir",
+    "town": "Wajir",
+    "lat": 1.7471,
+    "lng": 40.05732,
+    "geoname_id": 178443,
+    "capital": true
+  },
+  {
+    "county": "Wajir",
+    "town": "Habaswein",
+    "lat": 1.01659,
+    "lng": 39.49122,
+    "geoname_id": 196936,
+    "capital": false
+  },
+  {
+    "county": "Wajir",
+    "town": "Bute",
+    "lat": 3.35875,
+    "lng": 39.41968,
+    "geoname_id": 12718632,
+    "capital": false
+  },
+  {
+    "county": "Wajir",
+    "town": "Eldas",
+    "lat": 2.49184,
+    "lng": 39.56653,
+    "geoname_id": 12718631,
+    "capital": false
+  },
+  {
+    "county": "West Pokot",
+    "town": "Kapenguria",
+    "lat": 1.23889,
+    "lng": 35.11194,
+    "geoname_id": 194160,
+    "capital": true
+  },
+  {
+    "county": "West Pokot",
+    "town": "Makutano",
+    "lat": 1.25881,
+    "lng": 35.09569,
+    "geoname_id": 188045,
+    "capital": false
+  },
+  {
+    "county": "West Pokot",
+    "town": "Ortum",
+    "lat": 1.43735,
+    "lng": 35.35629,
+    "geoname_id": 181802,
+    "capital": false
+  },
+  {
+    "county": "West Pokot",
+    "town": "Chepareria",
+    "lat": 1.30583,
+    "lng": 35.20365,
+    "geoname_id": 199604,
+    "capital": false
+  }
+]

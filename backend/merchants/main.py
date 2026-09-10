@@ -10,6 +10,7 @@ from psycopg.types.json import Jsonb
 from common.db import connect, migrate
 from common.http import add_database_errors
 from common.models import Merchant
+from common.telemetry import configure
 
 
 @asynccontextmanager
@@ -25,6 +26,7 @@ app = FastAPI(
     openapi_url="/api/merchants/openapi.json",
 )
 add_database_errors(app)
+configure(app, "merchants")
 
 
 def current(authorization: str = Header(default="")):

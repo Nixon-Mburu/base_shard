@@ -11,6 +11,7 @@ from psycopg.types.json import Jsonb
 from common.db import connect, migrate
 from common.http import add_database_errors, merchant_session, request
 from common.models import OrderRequest
+from common.telemetry import configure
 
 logger = logging.getLogger("base_grid.orders")
 
@@ -99,6 +100,7 @@ app = FastAPI(
     openapi_url="/api/orders/openapi.json",
 )
 add_database_errors(app)
+configure(app, "orders")
 
 
 @app.get("/health")

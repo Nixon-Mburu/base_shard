@@ -9,6 +9,7 @@ from psycopg.types.json import Jsonb
 from common.db import connect, migrate
 from common.http import add_database_errors, internal_access
 from common.models import Allocation, Basket, calculate
+from common.telemetry import configure
 
 
 @asynccontextmanager
@@ -31,6 +32,7 @@ app = FastAPI(
     openapi_url="/api/catalog/openapi.json",
 )
 add_database_errors(app)
+configure(app, "catalog")
 
 
 def quote(db, basket, lock=False):

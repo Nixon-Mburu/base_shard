@@ -1,0 +1,10 @@
+data/*.jsonl
+data/*.sqlite*
+data/*manifest.json
+data/seed-secret
+results/*
+!results/.gitkeep
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/

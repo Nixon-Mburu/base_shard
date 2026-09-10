@@ -1,0 +1,27 @@
+groups:
+  - name: base-grid-load
+    rules:
+      - alert: DatabaseConnectionsNearLimit
+        expr: sum by(service)(base_db_connections) / base_db_connection_limit > 0.8
+        for: 1m
+        labels: {severity: warning}
+        annotations:
+          summary: "{{ $labels.service }} database connections above 80%"
+      - alert: ApiHighFailureRate
+        expr: sum(rate(base_api_requests_total{status=~"5.."}[1m])) / clamp_min(sum(rate(base_api_requests_total[1m])), 0.001) > 0.05
+        for: 1m
+        labels: {severity: warning}
+        annotations:
+          summary: "More than 5% API requests return 5xx"
+      - alert: LoadGeneratorCpuSaturated
+        expr: load_worker_cpu_ratio > 0.85
+        for: 1m
+        labels: {severity: warning}
+        annotations:
+          summary: "Locust worker CPU is saturated; throughput may be generator-limited"
+      - alert: DatabaseMetricsMissing
+        expr: base_db_scrape_success == 0
+        for: 30s
+        labels: {severity: warning}
+        annotations:
+          summary: "Database telemetry is unavailable"
