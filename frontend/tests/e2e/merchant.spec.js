@@ -63,3 +63,64 @@ test("catalog filters and empty checkout work on mobile", async ({ page }) => {
     page.getByRole("heading", { name: "Your next restock is waiting." }),
   ).toBeVisible();
 });
+
+test("an interrupted response resumes the same order after reload", async ({
+  page,
+  request,
+}) => {
+  const profile = {
+    businessName: "Retry Shop",
+    owner: "Retry Merchant",
+    phone: "0712345678",
+    type: "Retail shop",
+    city: "Nairobi",
+    address: "Test Street",
+    point: { lat: -1.28, lng: 36.82 },
+  };
+  const signup = await request.post("/api/merchants", { data: profile });
+  expect(signup.ok()).toBeTruthy();
+  const account = await signup.json();
+  const catalog = await (await request.get("/api/catalog/products")).json();
+  const before = catalog.find((p) => p.id === "rice").stock;
+  await page.goto("/checkout");
+  await page.evaluate(
+    ({ account }) => {
+      localStorage.setItem("base-grid:session", JSON.stringify(account.token));
+      localStorage.setItem(
+        "base-grid:merchant",
+        JSON.stringify(account.merchant),
+      );
+      localStorage.setItem("base-grid:cart", JSON.stringify({ rice: 1 }));
+    },
+    { account },
+  );
+  await page.reload();
+  let orderId;
+  await page.route(
+    "**/api/orders",
+    async (route) => {
+      const response = await route.fetch();
+      orderId = (await response.json()).id;
+      await route.abort("failed");
+    },
+    { times: 1 },
+  );
+  await page.getByRole("button", { name: "Place demo order" }).click();
+  await expect(page.getByRole("alert")).toContainText("could not be reached");
+  await page.reload();
+  await page
+    .getByRole("button", { name: "Check order status", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "You’re all stocked up." }),
+  ).toBeVisible();
+  const history = await (
+    await request.get("/api/orders", {
+      headers: { Authorization: "Bearer " + account.token },
+    })
+  ).json();
+  expect(history).toHaveLength(1);
+  expect(history[0].id).toBe(orderId);
+  const after = await (await request.get("/api/catalog/products")).json();
+  expect(after.find((p) => p.id === "rice").stock).toBe(before - 1);
+});

@@ -9,13 +9,17 @@ import {
   Plus,
   ShoppingBag,
 } from "lucide-react";
-import { products, money, totals } from "../../../../shared/catalog.mjs";
+import { money, totals } from "../../../../shared/catalog.mjs";
 import { useCart, useStore } from "../../../../shared/store";
 import ProductArt from "../../../../shared/ProductArt";
 import "../styles/order_page.css";
+import { useCatalog } from "../../../../shared/api";
+import OrderHistory from "../../../../shared/OrderHistory";
 export default function Orders({ navigate }) {
+  const { products, loading, error: catalogError, refresh } = useCatalog();
   const [cart, setCart] = useCart();
   const [merchant] = useStore("merchant", null);
+  const [pendingOrder] = useStore("order-attempt", null);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All products");
   const [sort, setSort] = useState("popular");
@@ -24,7 +28,7 @@ export default function Orders({ navigate }) {
     "All products",
     ...new Set(products.map((p) => p.category)),
   ];
-  const summary = totals(cart);
+  const summary = totals(cart, products);
   const filtered = products
     .filter(
       (p) =>
@@ -39,6 +43,7 @@ export default function Orders({ navigate }) {
           : 0,
     );
   function change(p, delta) {
+    if (pendingOrder) return;
     const next = {
       ...cart,
       [p.id]: Math.max(0, Math.min(p.stock, (cart[p.id] || 0) + delta)),
@@ -170,6 +175,28 @@ export default function Orders({ navigate }) {
           {error}
         </p>
       )}
+      {loading && (
+        <p role="status" className="muted">
+          Loading inventory…
+        </p>
+      )}
+      {catalogError && (
+        <div className="error" role="alert">
+          {catalogError}{" "}
+          <button className="btn small" onClick={refresh}>
+            Retry inventory
+          </button>
+        </div>
+      )}
+      {pendingOrder && (
+        <p className="notice">
+          An order is being processed.{" "}
+          <button className="link-button" onClick={() => navigate("/checkout")}>
+            Check order status
+          </button>{" "}
+          before changing your basket.
+        </p>
+      )}
       <div className="product-grid">
         {filtered.map((p) => (
           <article className="product-card" key={p.id}>
@@ -196,6 +223,7 @@ export default function Orders({ navigate }) {
                 {cart[p.id] ? (
                   <div className="quantity">
                     <button
+                      disabled={!!pendingOrder}
                       aria-label={"Decrease " + p.name}
                       onClick={() => change(p, -1)}
                     >
@@ -204,7 +232,7 @@ export default function Orders({ navigate }) {
                     <span aria-live="polite">{cart[p.id]}</span>
                     <button
                       aria-label={"Increase " + p.name}
-                      disabled={cart[p.id] >= p.stock}
+                      disabled={!!pendingOrder || cart[p.id] >= p.stock}
                       onClick={() => change(p, 1)}
                     >
                       +
@@ -214,6 +242,7 @@ export default function Orders({ navigate }) {
                   <button
                     className="add-button"
                     onClick={() => change(p, 1)}
+                    disabled={!!pendingOrder || !p.stock}
                     aria-label={"Add " + p.name}
                   >
                     <Plus size={15} /> Add
@@ -221,13 +250,14 @@ export default function Orders({ navigate }) {
                 )}
               </div>
               <div className="stock-label">
-                <span /> In stock · {p.stock} available
+                <span /> {p.stock ? "In stock" : "Sold out"} · {p.stock}{" "}
+                available
               </div>
             </div>
           </article>
         ))}
       </div>
-      {!filtered.length && (
+      {!loading && !catalogError && !filtered.length && (
         <div className="empty">
           <Search size={28} />
           <h2>No matching products</h2>
@@ -269,7 +299,8 @@ export default function Orders({ navigate }) {
           </button>
         </div>
       )}
-      {!merchant && (
+      {merchant?.id && <OrderHistory />}
+      {!merchant?.id && (
         <p className="setup-prompt">
           New here?{" "}
           <button className="link-button" onClick={() => navigate("/signup")}>

@@ -1,16 +1,18 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { normalizeCart, totals } from "../shared/catalog.mjs";
-test("invalid and unknown items are discarded and stock is enforced", () => {
-  assert.deepEqual(
-    normalizeCart({ rice: 999, oil: -1, milk: 1.5, unknown: 4, tea: "2" }),
-    { rice: 40 },
-  );
+import { normalizeCart, cartCount, totals } from "../shared/catalog.mjs";
+test("basket keeps valid intent and removes invalid quantities", () => {
+  assert.deepEqual(normalizeCart({ rice: 2, oil: -1, milk: 1.5, tea: "2" }), {
+    rice: 2,
+  });
   assert.deepEqual(normalizeCart(null), {});
+  assert.equal(cartCount({ rice: 2, oil: 3 }), 5);
 });
-test("totals calculate quantities and delivery threshold", () => {
-  assert.deepEqual(totals({}).total, 0);
-  assert.equal(totals({ rice: 2, oil: 1 }).total, 9530);
-  assert.equal(totals({ rice: 5 }).delivery, 0);
-  assert.equal(totals({ rice: 2, oil: 1 }).count, 3);
+test("display totals use API products and quantities", () => {
+  const products = [
+    { id: "rice", price: 3450 },
+    { id: "oil", price: 2280 },
+  ];
+  assert.equal(totals({ rice: 2, oil: 1 }, products).total, 9530);
+  assert.equal(totals({ rice: 5 }, products).delivery, 0);
 });

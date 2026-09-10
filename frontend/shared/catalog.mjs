@@ -1,88 +1,3 @@
-export const products = [
-  {
-    id: "rice",
-    name: "Premium pishori rice",
-    category: "Grains & staples",
-    unit: "25 kg bag",
-    price: 3450,
-    stock: 40,
-    icon: "rice",
-    tag: "BESTSELLER",
-    color: "#f4e5c9",
-  },
-  {
-    id: "oil",
-    name: "Pure vegetable oil",
-    category: "Cooking essentials",
-    unit: "10 L jerrycan",
-    price: 2280,
-    stock: 32,
-    icon: "oil",
-    tag: "GREAT VALUE",
-    color: "#f2d676",
-  },
-  {
-    id: "flour",
-    name: "All-purpose wheat flour",
-    category: "Grains & staples",
-    unit: "12 × 2 kg bale",
-    price: 1890,
-    stock: 50,
-    icon: "flour",
-    color: "#e4c6a0",
-  },
-  {
-    id: "sugar",
-    name: "White granulated sugar",
-    category: "Grains & staples",
-    unit: "25 kg bag",
-    price: 3650,
-    stock: 25,
-    icon: "sugar",
-    color: "#eedce6",
-  },
-  {
-    id: "milk",
-    name: "Long-life whole milk",
-    category: "Dairy & beverages",
-    unit: "12 × 1 L carton",
-    price: 1440,
-    stock: 28,
-    icon: "milk",
-    tag: "POPULAR",
-    color: "#c6dbea",
-  },
-  {
-    id: "tea",
-    name: "Kenyan black tea",
-    category: "Dairy & beverages",
-    unit: "12 × 250 g packs",
-    price: 2160,
-    stock: 35,
-    icon: "tea",
-    color: "#baceaa",
-  },
-  {
-    id: "soap",
-    name: "Multipurpose liquid soap",
-    category: "Cleaning supplies",
-    unit: "5 L container",
-    price: 680,
-    stock: 45,
-    icon: "soap",
-    color: "#b9dcd3",
-  },
-  {
-    id: "tissue",
-    name: "Everyday tissue rolls",
-    category: "Cleaning supplies",
-    unit: "40 roll bale",
-    price: 980,
-    stock: 20,
-    icon: "tissue",
-    color: "#ded1ed",
-  },
-];
 export const money = (value) =>
   new Intl.NumberFormat("en-KE", {
     style: "currency",
@@ -90,15 +5,18 @@ export const money = (value) =>
     maximumFractionDigits: 0,
   }).format(value);
 export function normalizeCart(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
   return Object.fromEntries(
-    products.flatMap((p) =>
-      Number.isInteger(value?.[p.id]) && value[p.id] > 0
-        ? [[p.id, Math.min(p.stock, value[p.id])]]
-        : [],
+    Object.entries(value).filter(
+      ([id, n]) =>
+        id.length <= 80 && Number.isInteger(n) && n > 0 && n <= 10000,
     ),
   );
 }
-export function totals(cart) {
+export function cartCount(cart) {
+  return Object.values(normalizeCart(cart)).reduce((s, n) => s + n, 0);
+}
+export function totals(cart, products = []) {
   const items = products
     .filter((p) => cart[p.id])
     .map((p) => ({ ...p, quantity: cart[p.id] }));
@@ -109,6 +27,6 @@ export function totals(cart) {
     subtotal,
     delivery,
     total: subtotal + delivery,
-    count: items.reduce((s, p) => s + p.quantity, 0),
+    count: cartCount(cart),
   };
 }

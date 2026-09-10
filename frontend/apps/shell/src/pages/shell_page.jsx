@@ -10,7 +10,7 @@ import {
   PackageCheck,
 } from "lucide-react";
 import { useCart, useStore } from "../../../../shared/store";
-import { totals } from "../../../../shared/catalog.mjs";
+import { cartCount } from "../../../../shared/catalog.mjs";
 import "../styles/shell_page.css";
 const routes = {
   "/orders": { app: "orders", label: "Order inventory" },
@@ -119,8 +119,8 @@ export default function Shell() {
             >
               <Icon size={19} />
               {label}
-              {url === "/checkout" && totals(cart).count > 0 && (
-                <span className="nav-count">{totals(cart).count}</span>
+              {url === "/checkout" && cartCount(cart) > 0 && (
+                <span className="nav-count">{cartCount(cart)}</span>
               )}
             </a>
           ))}
@@ -172,10 +172,10 @@ export default function Shell() {
             <button
               className="header-cart"
               onClick={() => navigate("/checkout")}
-              aria-label={"Cart, " + totals(cart).count + " items"}
+              aria-label={"Cart, " + cartCount(cart) + " items"}
             >
               <ShoppingBag size={19} />
-              <span>{totals(cart).count}</span>
+              <span>{cartCount(cart)}</span>
             </button>
             <span className="avatar small-avatar">
               {merchant?.businessName?.[0]?.toUpperCase() || "M"}

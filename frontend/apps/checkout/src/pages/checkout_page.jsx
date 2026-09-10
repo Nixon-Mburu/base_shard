@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -10,11 +10,22 @@ import {
   Wallet,
   ShoppingBag,
 } from "lucide-react";
-import { useCart, useStore, write } from "../../../../shared/store";
+import { useCart, useStore, write, read } from "../../../../shared/store";
 import { totals, money } from "../../../../shared/catalog.mjs";
 import ProductArt from "../../../../shared/ProductArt";
 import "../styles/checkout_page.css";
+import { api, useCatalog } from "../../../../shared/api";
 export default function Checkout({ navigate }) {
+  const {
+    products,
+    loading: catalogLoading,
+    error: catalogError,
+    refresh,
+  } = useCatalog();
+  const [quote, setQuote] = useState(null);
+  const [quoteError, setQuoteError] = useState("");
+  const [quoting, setQuoting] = useState(false);
+  const [attempt, setAttempt] = useState(() => read("order-attempt", null));
   const [cart, setCart] = useCart();
   const [merchant] = useStore("merchant", null);
   const [receipt, setReceipt] = useState(null);
@@ -23,36 +34,97 @@ export default function Checkout({ navigate }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const locked = useRef(false);
-  const summary = totals(cart);
+  const summary = quote || totals(cart, products);
+  const basketKey = JSON.stringify(cart);
+  useEffect(() => {
+    const controller = new AbortController();
+    setQuote(null);
+    setQuoteError("");
+    if (!Object.keys(cart).length) return;
+    setQuoting(true);
+    api("/catalog/quote", {
+      method: "POST",
+      body: {
+        items: Object.entries(cart).map(([id, quantity]) => ({ id, quantity })),
+      },
+      signal: controller.signal,
+    })
+      .then(setQuote)
+      .catch((e) => {
+        if (!controller.signal.aborted) setQuoteError(e.message);
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setQuoting(false);
+      });
+    return () => controller.abort();
+  }, [basketKey, products]);
   async function pay() {
     if (locked.current) return;
-    if (!merchant?.businessName || !merchant?.point) {
+    if (!merchant?.id || !read("session", null)) {
       navigate("/signup");
       return;
     }
-    if (!summary.count) return;
+    if (!attempt && (!quote || quoting)) return;
     locked.current = true;
     setBusy(true);
     setError("");
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1100));
-      if (result === "declined")
+      let current = attempt;
+      if (current && current.merchantId !== merchant.id)
         throw new Error(
-          "The simulated payment was declined. Your basket is saved; try again with a successful payment.",
+          "The pending order belongs to another business session.",
         );
-      const order = {
-        id: "BG-" + crypto.randomUUID().slice(0, 8).toUpperCase(),
-        createdAt: new Date().toISOString(),
-        merchant,
-        method,
-        ...summary,
-        status: "Demo payment successful",
-      };
+      if (!current) {
+        current = {
+          key: crypto.randomUUID(),
+          merchantId: merchant.id,
+          payload: {
+            items: Object.entries(cart).map(([id, quantity]) => ({
+              id,
+              quantity,
+            })),
+            expected_total: quote.total,
+            method,
+            outcome: result,
+          },
+        };
+        write("order-attempt", current);
+        setAttempt(current);
+      }
+      let order = await api("/orders", {
+        method: "POST",
+        body: current.payload,
+        headers: { "Idempotency-Key": current.key },
+      });
+      for (let i = 0; order.status === "pending" && i < 8; i++) {
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+        order = await api("/orders/" + order.id);
+      }
+      if (order.status === "pending") {
+        setError(
+          "Your order is still processing. Use Check order status to safely resume it.",
+        );
+        return;
+      }
+      write("order-attempt", null);
+      setAttempt(null);
+      if (order.status !== "confirmed") {
+        refresh();
+        throw new Error(order.error || "The order could not be completed.");
+      }
+      setReceipt(order);
       write("last-order", order);
       setCart({});
-      setReceipt(order);
+      refresh();
     } catch (e) {
-      setError(e.message || "Could not save your order. Please try again.");
+      if ([400, 401, 422].includes(e.status)) {
+        write("order-attempt", null);
+        setAttempt(null);
+      }
+      setError(
+        e.message ||
+          "Could not place the order. Retry to safely resume the same request.",
+      );
     } finally {
       locked.current = false;
       setBusy(false);
@@ -78,7 +150,7 @@ export default function Checkout({ navigate }) {
           <div className="eyebrow">ONE LESS THING ON YOUR TO-DO LIST</div>
           <h1>You’re all stocked up.</h1>
           <p className="muted">
-            Your demo order has been placed, {receipt.merchant.owner}.
+            Your order has been saved, {receipt.merchant.owner}.
           </p>
           <span className="pill">{receipt.id}</span>
           <div className="receipt-details">
@@ -108,7 +180,7 @@ export default function Checkout({ navigate }) {
         </div>
       </div>
     );
-  if (!summary.count)
+  if (!summary.count && !attempt)
     return (
       <div className="page empty">
         <div className="success-icon">
@@ -151,6 +223,26 @@ export default function Checkout({ navigate }) {
               <span className="muted">{summary.count} items</span>
             </div>
             <div className="order-lines">
+              {Object.keys(cart)
+                .filter((id) => !products.some((p) => p.id === id))
+                .map((id) => (
+                  <div className="row" key={id}>
+                    <span>Unavailable product: {id}</span>
+                    <button
+                      className="link-button"
+                      disabled={busy || !!attempt}
+                      onClick={() =>
+                        setCart(
+                          Object.fromEntries(
+                            Object.entries(cart).filter(([key]) => key !== id),
+                          ),
+                        )
+                      }
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
               {summary.items.map((p) => (
                 <article className="order-line" key={p.id}>
                   <div className="line-art">
@@ -163,7 +255,7 @@ export default function Checkout({ navigate }) {
                   </div>
                   <div className="quantity">
                     <button
-                      disabled={busy}
+                      disabled={busy || !!attempt}
                       aria-label={"Decrease " + p.name}
                       onClick={() => change(p, -1)}
                     >
@@ -171,7 +263,7 @@ export default function Checkout({ navigate }) {
                     </button>
                     <span>{p.quantity}</span>
                     <button
-                      disabled={busy || p.quantity >= p.stock}
+                      disabled={busy || !!attempt || p.quantity >= p.stock}
                       aria-label={"Increase " + p.name}
                       onClick={() => change(p, 1)}
                     >
@@ -190,13 +282,13 @@ export default function Checkout({ navigate }) {
               </h2>
               <button
                 className="link-button"
-                disabled={busy}
+                disabled={busy || !!attempt}
                 onClick={() => navigate("/signup")}
               >
-                {merchant ? "Edit" : "Add business"}
+                {merchant?.id ? "Edit" : "Add business"}
               </button>
             </div>
-            {merchant ? (
+            {merchant?.id ? (
               <>
                 <strong>{merchant.businessName}</strong>
                 <p className="muted">
@@ -236,7 +328,7 @@ export default function Checkout({ navigate }) {
                     name="payment"
                     value={id}
                     checked={method === id}
-                    disabled={busy}
+                    disabled={busy || !!attempt}
                     onChange={() => setMethod(id)}
                   />
                   <Icon size={22} />
@@ -251,7 +343,7 @@ export default function Checkout({ navigate }) {
               Demo payment outcome
               <select
                 value={result}
-                disabled={busy}
+                disabled={busy || !!attempt}
                 onChange={(e) => setResult(e.target.value)}
               >
                 <option value="success">Successful payment</option>
@@ -286,17 +378,46 @@ export default function Checkout({ navigate }) {
           <p className="muted summary-hint">
             All prices are demo prices. No additional fees.
           </p>
+          {(catalogLoading || quoting) && (
+            <p role="status" className="muted">
+              Checking current prices and stock…
+            </p>
+          )}
+          {(quoteError || catalogError) && (
+            <p role="alert" className="error">
+              {quoteError || catalogError}{" "}
+              <button className="link-button" onClick={refresh}>
+                Refresh
+              </button>
+            </p>
+          )}
+          {attempt && (
+            <p className="notice">
+              An order request is in progress. Check its status before placing
+              another order.
+            </p>
+          )}
           {error && (
             <p className="error" role="alert">
               {error}
             </p>
           )}
-          <button className="btn primary wide" disabled={busy} onClick={pay}>
+          <button
+            className="btn primary wide"
+            disabled={
+              busy ||
+              (!attempt &&
+                (quoting || !quote || !!quoteError || !!catalogError))
+            }
+            onClick={pay}
+          >
             {busy
-              ? "Simulating payment…"
-              : merchant
-                ? "Place demo order"
-                : "Add delivery details"}
+              ? "Placing order…"
+              : attempt
+                ? "Check order status"
+                : merchant?.id
+                  ? "Place demo order"
+                  : "Add delivery details"}
             {!busy && <ArrowRight size={16} />}
           </button>
           <p className="payment-disclaimer">

@@ -1,92 +1,59 @@
 # Base Grid frontend
 
-A merchant inventory storefront with a React shell and three independently built, runtime-loaded microfrontends. White page backgrounds, purple accents, and locally bundled Gabarito throughout.
+A React shell and three independently built, runtime-loaded microfrontends. White page backgrounds, purple accents, and locally bundled Gabarito throughout.
 
-## Run with Docker
+## Run
 
-From this directory:
-
-```sh
-docker compose up --build -d
+```bash
+# From frontend/; includes all backend services and databases.
+sudo docker compose up --build -d
 ```
 
-Open http://localhost:8080. Set `FRONTEND_PORT=8081` if port 8080 is occupied. Docker daemon access is required. Check health with `docker compose ps`; stop with `docker compose down`.
+Open http://localhost:8080. The same command works at the repository root. See the [root README](../README.md) for configuration, API-only development, and database lifecycle details.
 
-Each app has its own Dockerfile and Node build stage, then serves static output using Nginx. Only the gateway publishes a host port. A page can be rebuilt independently:
+For local development, first start the backend stack, then:
 
-```sh
-docker compose up -d --build orders
-```
-
-The gateway resolves service addresses dynamically so it can follow replaced containers. JavaScript and HTML use revalidation to avoid serving stale remote entry points.
-
-## Local development
-
-Node 22 and npm are required.
-
-```sh
+```bash
 npm ci
-npm run dev
+API_PROXY_TARGET=http://localhost:8080 npm run dev
 ```
 
-Open http://localhost:5173. The launcher runs all four Vite applications; the shell proxies the remote apps. Apps also run individually with `npm run dev --workspace=@base-grid/orders` (substitute the app name).
-
-| Application         | Shell route                | Standalone development URL          | Gateway standalone path |
-| ------------------- | -------------------------- | ----------------------------------- | ----------------------- |
-| Shell               | `/` redirects to `/orders` | http://localhost:5173               | `/`                     |
-| Merchant signup     | `/signup`                  | http://localhost:5174/mfe/signup/   | `/mfe/signup/`          |
-| Inventory orders    | `/orders`                  | http://localhost:5175/mfe/orders/   | `/mfe/orders/`          |
-| Summary and payment | `/checkout`                | http://localhost:5176/mfe/checkout/ | `/mfe/checkout/`        |
-
-Standalone pages render without navigation chrome. Cross-page links require the shell origin; for a complete journey, use the shell or gateway.
-
-For a local preview of the production bundles, run `npm run build` followed by `npm run preview`, then open http://localhost:4173. This preview server is for development; Docker uses Nginx.
+Open http://localhost:5173. If using the API-only Compose dev override, use `API_PROXY_TARGET=http://localhost:8088`. Production bundle preview: `npm run build`, then `API_PROXY_TARGET=http://localhost:8088 npm run preview` (port 4173).
 
 ## Architecture
 
-```text
-Browser → Nginx gateway :8080
-             ├── /, /signup, /orders, /checkout → shell Nginx
-             ├── /mfe/signup/*                  → signup Nginx
-             ├── /mfe/orders/*                  → orders Nginx
-             └── /mfe/checkout/*                → checkout Nginx
-```
+| App      | Shell route     | Standalone dev URL                  | Gateway standalone path |
+| -------- | --------------- | ----------------------------------- | ----------------------- |
+| Shell    | `/` → `/orders` | http://localhost:5173               | `/`                     |
+| Signup   | `/signup`       | http://localhost:5174/mfe/signup/   | `/mfe/signup/`          |
+| Orders   | `/orders`       | http://localhost:5175/mfe/orders/   | `/mfe/orders/`          |
+| Checkout | `/checkout`     | http://localhost:5176/mfe/checkout/ | `/mfe/checkout/`        |
 
-The shell owns navigation and loads each app's ES module at `/mfe/<app>/assets/remote.js`. Each module exposes `mount(element, { navigate })` and returns an unmount callback. Every remote bundles React independently and mounts its own root; there is no shared React context or build-time page import in the shell. The shell loads each remote's CSS separately and handles load failures with a retry action. Each app also includes an HTML entry point for standalone use.
+Each application has its own Dockerfile, package, `src/pages/` and `src/styles/`. The shell loads `/mfe/<app>/assets/remote.js` at runtime. Each remote exports `mount(element, {navigate})` and returns an unmount callback; it bundles React independently and has its own HTML entry point. Standalone pages render without shell chrome; use the shell for cross-page journeys.
 
-```text
-apps/
-  shell/      src/pages/shell_page.jsx       src/styles/shell_page.css
-  signup/     src/pages/signup_page.jsx      src/styles/signup_page.css
-  orders/     src/pages/order_page.jsx       src/styles/order_page.css
-  checkout/   src/pages/checkout_page.jsx    src/styles/checkout_page.css
-shared/       catalog, browser store, product artwork, global typography/styles
-nginx/        gateway and app server configurations
-```
+The shell loads remote CSS separately and handles load failures with a retry action. Shared files are source-level contracts compiled into each app; rebuild affected apps after changing them. Rebuild a single app with `docker compose up -d --build orders`.
 
-Shared files are source-level contracts compiled into each app. A shared-contract change requires rebuilding affected apps. The basket and merchant profile use versionless `base-grid:*` localStorage keys and `base-grid:change` events on the same origin; storage events update other tabs. Browser storage is for the demo, not an authenticated account or authoritative inventory service.
+`shared/api.js` provides same-origin JSON requests, bearer-session headers, timeouts, readable API errors, product loading, and merchant saving. Both Vite and the production preview proxy `/api/`; deployed traffic goes through the Nginx API gateway. No product prices or inventory are hardcoded in frontend source.
 
-## User flow
+`shared/store.js` maintains basket quantities, the merchant/session cache, and pending order idempotency keys using `base-grid:*` localStorage keys and change events. This keeps state across remote mounts and reloads. Profiles, stock, orders and final totals are authoritative in the backend. Older frontend-only profiles must be saved once to create a server-side merchant.
 
-1. Enter business/contact information, then place a delivery pin on OpenStreetMap. Browser geolocation and manual coordinates are available. Nairobi is the initial view; the city is editable.
-2. Search and filter eight example wholesale products, sort by price, and adjust quantities up to demo stock limits. The basket persists through reloads and navigation.
-3. Review quantities, delivery details and totals. Demo delivery costs KES 350, waived at KES 15,000. Prices are illustrative; no real tax calculation is performed.
-4. Choose simulated M-Pesa or card payment. The outcome selector exercises success and decline; decline retains the basket. Success saves the latest demo order and clears the basket. No payment credentials are collected, no money is charged, and no delivery is dispatched.
+## Flow
 
-Map tiles require internet access. Attribution is visible, and tile requests use the standard OSM endpoint with a browser referrer. No geocoding/autocomplete service is used. Follow the [OpenStreetMap tile usage policy](https://operations.osmfoundation.org/policies/tiles/) and configure a suitable tile provider before significant production traffic. Fonts are served locally and do not require Google Fonts.
+1. Enter business/contact details, select an OpenStreetMap delivery point, and save to the merchant API. Geolocation and manual coordinates are supported; Nairobi is the initial view.
+2. Load products, search/filter/sort, and choose quantities within current displayed stock. The backend rechecks stock under concurrency.
+3. Checkout obtains a fresh quote, then posts an order with a durable idempotency key. M-Pesa/card outcomes are simulated. Declines preserve the basket. Pending requests can be safely resumed after a response loss or reload.
+4. Confirmation comes from the API and clears the basket. Recent orders are read from the orders service.
 
-## Verification
+Fonts are served locally. Map tiles require internet access and show attribution; follow the [OpenStreetMap tile policy](https://operations.osmfoundation.org/policies/tiles/) and configure a suitable provider before significant production traffic. No geocoding/autocomplete API is used.
 
-```sh
+## Checks
+
+```bash
 npm test
+npm run format:check
 npm run build
 npx playwright install chromium
-npm run test:e2e
-# Against the Docker deployment:
 BASE_URL=http://localhost:8080 npm run test:e2e
-docker compose config --quiet
 ```
 
-Tests cover invalid basket data, stock bounds, pricing/delivery totals, merchant signup, basket persistence, payment decline/retry, successful order placement, catalog empty states and mobile overflow. Production browser testing should use the gateway to verify remote entries, CSS and deep-link fallback together.
-
-Backend authentication, real inventory, persistent orders, payment processing and dispatch are future integrations.
+Browser tests require the real backend and consume demo stock. They cover signup, basket persistence, decline/retry, confirmation, mobile layout, and a lost order response recovered after reload without a duplicate order. Use a disposable test stack as described in the root README.

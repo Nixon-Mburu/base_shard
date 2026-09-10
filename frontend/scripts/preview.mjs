@@ -1,4 +1,5 @@
 // Local production-build preview. Deployment uses the Nginx gateway.
+import { request as httpRequest } from "node:http";
 import { createServer } from "node:http";
 import { readFile, stat } from "node:fs/promises";
 import { resolve, extname, sep } from "node:path";
@@ -17,6 +18,25 @@ createServer(async (req, res) => {
     const pathname = decodeURIComponent(
       new URL(req.url, "http://localhost").pathname,
     );
+    if (pathname.startsWith("/api/")) {
+      const upstream = httpRequest(
+        new URL(
+          req.url,
+          process.env.API_PROXY_TARGET || "http://127.0.0.1:8080",
+        ),
+        { method: req.method, headers: req.headers },
+        (response) => {
+          res.writeHead(response.statusCode, response.headers);
+          response.pipe(res);
+        },
+      );
+      upstream.on("error", () => {
+        res.writeHead(502, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ detail: "API gateway unavailable" }));
+      });
+      req.pipe(upstream);
+      return;
+    }
     const match = pathname.match(/^\/mfe\/(signup|orders|checkout)\/(.*)$/);
     const base = resolve(root, "apps", match ? match[1] : "shell", "dist");
     let file = resolve(base, "." + (match ? "/" + match[2] : pathname));

@@ -9,8 +9,9 @@ import {
   Check,
   Truck,
 } from "lucide-react";
-import { read, write } from "../../../../shared/store";
+import { read } from "../../../../shared/store";
 import "../styles/signup_page.css";
+import { saveMerchant } from "../../../../shared/api";
 export default function Signup({ navigate }) {
   const saved = read("merchant", null);
   const [step, setStep] = useState(1);
@@ -25,6 +26,7 @@ export default function Signup({ navigate }) {
   });
   const [point, setPoint] = useState(saved?.point || null);
   const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
   const [locating, setLocating] = useState(false);
   const [mapError, setMapError] = useState(false);
   const mapElement = useRef();
@@ -80,8 +82,9 @@ export default function Signup({ navigate }) {
     };
   }, [step]);
   const field = (name, value) => setForm({ ...form, [name]: value });
-  function submit(e) {
+  async function submit(e) {
     e.preventDefault();
+    if (saving) return;
     setError("");
     if (step === 1) {
       if (
@@ -107,20 +110,28 @@ export default function Signup({ navigate }) {
       setError("Add your town and delivery directions.");
       return;
     }
+    setSaving(true);
     try {
-      write("merchant", {
-        ...form,
-        businessName: form.businessName.trim(),
-        city: form.city.trim(),
+      const { businessName, owner, phone, type, city, address } = form;
+      await saveMerchant({
+        businessName,
+        owner,
+        phone,
+        type,
+        city,
+        address,
         point,
       });
       navigate("/orders");
-    } catch {
+    } catch (e) {
       setError(
-        "Your profile could not be saved. Please enable browser local storage.",
+        e.message || "Your business could not be saved. Please try again.",
       );
+    } finally {
+      setSaving(false);
     }
   }
+
   function locate() {
     setError("");
     if (!navigator.geolocation) {
@@ -237,8 +248,8 @@ export default function Signup({ navigate }) {
                   </select>
                 </label>
                 <p className="notice">
-                  This demo saves your business profile in this browser. No
-                  password is needed yet.
+                  Your business profile is saved for future orders. No password
+                  is needed yet.
                 </p>
               </>
             ) : (
@@ -351,8 +362,12 @@ export default function Signup({ navigate }) {
                   Back
                 </button>
               )}
-              <button type="submit" className="btn primary">
-                {step === 1 ? "Continue to location" : "Save & start shopping"}
+              <button type="submit" className="btn primary" disabled={saving}>
+                {saving
+                  ? "Saving business…"
+                  : step === 1
+                    ? "Continue to location"
+                    : "Save & start shopping"}
                 <ArrowRight size={16} />
               </button>
             </div>

@@ -1,0 +1,5 @@
+# Optional API-only stack for Vite development.
+services:
+  api-gateway:
+    ports:
+      - "127.0.0.1:${API_PORT:-8088}:80"

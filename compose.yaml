@@ -1,0 +1,4 @@
+# Preserve the existing frontend Compose project and containers.
+name: base-grid-frontend
+include:
+  - frontend/compose.yaml
