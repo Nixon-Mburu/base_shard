@@ -1,3 +1,10 @@
+import documents from "../../shared/graphql.json" with { type: "json" };
+async function gql(request, operation, variables = {}, headers = {}) {
+ const response = await request.post("/graphql", { data: { query: documents[operation], variables }, headers });
+ const result = await response.json();
+ expect(result.errors).toBeUndefined();
+ return result.data[operation];
+}
 import { test, expect } from "@playwright/test";
 test("merchant signup, persistent basket, declined payment, successful payment", async ({
   page,
@@ -77,10 +84,8 @@ test("an interrupted response resumes the same order after reload", async ({
     address: "Test Street",
     point: { lat: -1.28, lng: 36.82 },
   };
-  const signup = await request.post("/api/merchants", { data: profile });
-  expect(signup.ok()).toBeTruthy();
-  const account = await signup.json();
-  const catalog = await (await request.get("/api/catalog/products")).json();
+  const account = await gql(request, "createMerchant", { input: profile });
+  const catalog = await gql(request, "products");
   const before = catalog.find((p) => p.id === "rice").stock;
   await page.goto("/checkout");
   await page.evaluate(
@@ -97,13 +102,14 @@ test("an interrupted response resumes the same order after reload", async ({
   await page.reload();
   let orderId;
   await page.route(
-    "**/api/orders",
+    "**/graphql",
     async (route) => {
+      if (orderId || !route.request().postDataJSON().query.includes("mutation PlaceOrder")) return route.continue();
       const response = await route.fetch();
-      orderId = (await response.json()).id;
+      orderId = (await response.json()).data.placeOrder.id;
       await route.abort("failed");
     },
-    { times: 1 },
+
   );
   await page.getByRole("button", { name: "Place demo order" }).click();
   await expect(page.getByRole("alert")).toContainText("could not be reached");
@@ -114,13 +120,9 @@ test("an interrupted response resumes the same order after reload", async ({
   await expect(
     page.getByRole("heading", { name: "You’re all stocked up." }),
   ).toBeVisible();
-  const history = await (
-    await request.get("/api/orders", {
-      headers: { Authorization: "Bearer " + account.token },
-    })
-  ).json();
+  const history = await gql(request, "orders", {}, { Authorization: "Bearer " + account.token });
   expect(history).toHaveLength(1);
   expect(history[0].id).toBe(orderId);
-  const after = await (await request.get("/api/catalog/products")).json();
+  const after = await gql(request, "products");
   expect(after.find((p) => p.id === "rice").stock).toBe(before - 1);
 });

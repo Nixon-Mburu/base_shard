@@ -36,11 +36,24 @@ def request(method, url, **kwargs):
 def merchant_session(authorization: str = Header(default="")):
     if not authorization.startswith("Bearer "):
         raise HTTPException(401, "Set up your business to continue")
-    return request(
-        "GET",
-        os.environ["MERCHANTS_URL"] + "/api/merchants/me",
-        headers={"Authorization": authorization},
+    return graphql_request(
+        os.environ["MERCHANTS_URL"] + "/graphql", "me", {}, {"Authorization": authorization}
     )
+
+
+def graphql_request(url, operation, variables, headers=None):
+    from common.graphql_documents import DOCUMENTS
+
+    result = request(
+        "POST",
+        url,
+        json={"query": DOCUMENTS[operation], "variables": variables},
+        headers=headers or {},
+    )
+    if result.get("errors"):
+        error = result["errors"][0]
+        raise HTTPException(error.get("extensions", {}).get("status", 503), error["message"])
+    return result["data"][operation]
 
 
 def add_database_errors(app):

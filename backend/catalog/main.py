@@ -3,10 +3,11 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from uuid import UUID
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException
 from psycopg.types.json import Jsonb
 
 from common.db import connect, migrate
+from common.graphql_api import allocation_input, mount
 from common.http import add_database_errors, internal_access
 from common.models import Allocation, Basket, calculate
 from common.telemetry import configure
@@ -70,20 +71,17 @@ def health():
     return {"status": "ok", "service": "catalog"}
 
 
-@app.get("/api/catalog/products")
 def products():
     with connect() as db:
         rows = db.execute("SELECT data,price,stock FROM products ORDER BY id").fetchall()
     return [{**p["data"], "price": p["price"], "stock": p["stock"]} for p in rows]
 
 
-@app.post("/api/catalog/quote")
 def get_quote(basket: Basket):
     with connect() as db:
         return quote(db, basket)
 
 
-@app.post("/internal/allocations/{allocation_id}", dependencies=[Depends(internal_access)])
 def allocate(allocation_id: UUID, payload: Allocation):
     body = payload.model_dump()
     with connect() as db:
@@ -112,3 +110,23 @@ def allocate(allocation_id: UUID, payload: Allocation):
             (allocation_id, Jsonb(body), Jsonb(result)),
         )
     return result
+
+
+mount(
+    app,
+    {
+        "products": lambda _, info: products(),
+        "quote": lambda _, info, input: get_quote(Basket(**input)),
+    },
+)
+mount(
+    app,
+    {},
+    {
+        "allocateStock": lambda _, info, input, id: allocate(
+            UUID(id), Allocation(**allocation_input(input))
+        )
+    },
+    path="/internal/graphql",
+    authorize=lambda request: internal_access(request.headers.get("x-service-key", "")),
+)

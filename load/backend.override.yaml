@@ -2,6 +2,15 @@ services:
   api-gateway:
     ports:
       - "127.0.0.1:${LOAD_API_PORT:-18080}:80"
+  graphql-gateway:
+    environment:
+      OTEL_ENABLED: "true"
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      TRACE_SAMPLE_RATIO: ${TRACE_SAMPLE_RATIO:-0.01}
+      RUN_ID: ${RUN_ID:-interactive}
+    cpus: "${API_CPUS:-1}"
+    mem_limit: 512m
   merchants-api:
     environment:
       OTEL_ENABLED: "true"

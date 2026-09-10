@@ -18,7 +18,7 @@ createServer(async (req, res) => {
     const pathname = decodeURIComponent(
       new URL(req.url, "http://localhost").pathname,
     );
-    if (pathname.startsWith("/api/")) {
+    if (pathname.startsWith("/graphql")) {
       const upstream = httpRequest(
         new URL(
           req.url,

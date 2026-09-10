@@ -192,13 +192,13 @@ def build():
     )
     panel(
         "Server p95 by endpoint",
-        "histogram_quantile(.95,sum by(le,service_name,route)(rate(base_api_duration_seconds_bucket"
+        "histogram_quantile(.95,sum by(le,service_name,operation)(rate(base_api_duration_seconds_bucket"
         + API
         + "[$__rate_interval])))",
         12,
         25,
         unit="s",
-        legend="{{service_name}} · {{route}}",
+        legend="{{service_name}} · {{operation}}",
     )
     panel(
         "Load distribution across replicas",
@@ -212,8 +212,8 @@ def build():
         description="Use this to verify Nginx actually distributes traffic after scaling.",
     )
     panel(
-        "Server 5xx ratio",
-        'sum by(service_name)(rate(base_api_requests_total{service_name=~"$service",benchmark_run_id=~"$run_id",status=~"5.."}[$__rate_interval])) / clamp_min(sum by(service_name)(rate(base_api_requests_total'
+        "GraphQL / HTTP error ratio",
+        'sum by(service_name)(rate(base_api_requests_total{service_name=~"$service",benchmark_run_id=~"$run_id",outcome="error"}[$__rate_interval])) / clamp_min(sum by(service_name)(rate(base_api_requests_total'
         + API
         + "[$__rate_interval])),.001)",
         12,
@@ -233,7 +233,7 @@ def build():
     table["targets"] = [
         {
             "refId": label,
-            "expr": f"histogram_quantile({q},sum by(le,service_name,method,route)(rate(base_api_duration_seconds_bucket"
+            "expr": f"histogram_quantile({q},sum by(le,service_name,method,operation)(rate(base_api_duration_seconds_bucket"
             + API
             + "[$__rate_interval])))",
             "format": "table",

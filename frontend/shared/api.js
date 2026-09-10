@@ -1,3 +1,4 @@
+import documents from "./graphql.json";
 import { useCallback, useEffect, useState } from "react";
 import { read, write } from "./store";
 export class ApiError extends Error {
@@ -6,47 +7,29 @@ export class ApiError extends Error {
     this.status = status;
   }
 }
-export async function api(
-  path,
-  { method = "GET", body, headers = {}, signal } = {},
-) {
+export async function api(operation, { variables = {}, signal } = {}) {
   const token = read("session", null);
   const timeout = AbortSignal.timeout(15000);
   let response;
   try {
-    response = await fetch("/api" + path, {
-      method,
-      headers: {
-        ...(body ? { "Content-Type": "application/json" } : {}),
-        ...(token ? { Authorization: "Bearer " + token } : {}),
-        ...headers,
-      },
-      body: body ? JSON.stringify(body) : undefined,
+    response = await fetch("/graphql", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...(token ? { Authorization: "Bearer " + token } : {}) },
+      body: JSON.stringify({ query: documents[operation], variables }),
       signal: signal ? AbortSignal.any([signal, timeout]) : timeout,
     });
-  } catch (e) {
-    if (signal?.aborted) throw e;
+  } catch (error) {
+    if (signal?.aborted) throw error;
     throw new ApiError("The service could not be reached. Please try again.");
   }
-  let data;
-  try {
-    data = await response.json();
-  } catch {
-    throw new ApiError(
-      "The API returned an unexpected response. Check that the backend is running.",
-      response.status,
-    );
+  let result;
+  try { result = await response.json(); }
+  catch { throw new ApiError("The API returned an unexpected response", response.status); }
+  if (!response.ok || result.errors?.length) {
+    const error = result.errors?.[0];
+    throw new ApiError(error?.message || "Request failed", error?.extensions?.status || response.status);
   }
-  if (!response.ok) {
-    const detail =
-      typeof data.detail === "string"
-        ? data.detail
-        : Array.isArray(data.detail)
-          ? data.detail.map((e) => e.msg).join("; ")
-          : "Request failed";
-    throw new ApiError(detail, response.status);
-  }
-  return data;
+  return result.data[operation];
 }
 export function useCatalog() {
   const [products, setProducts] = useState([]);
@@ -57,7 +40,7 @@ export function useCatalog() {
   useEffect(() => {
     const controller = new AbortController();
     setLoading(true);
-    api("/catalog/products", { signal: controller.signal })
+    api("products", { signal: controller.signal })
       .then((data) => {
         setProducts(data);
         setError("");
@@ -79,14 +62,13 @@ export function useCatalog() {
 export async function saveMerchant(profile) {
   const token = read("session", null);
   if (token) {
-    const merchant = await api("/merchants/me", {
-      method: "PUT",
-      body: profile,
+    const merchant = await api("updateMerchant", {
+      variables: { input: profile },
     });
     write("merchant", merchant);
     return merchant;
   }
-  const data = await api("/merchants", { method: "POST", body: profile });
+  const data = await api("createMerchant", { variables: { input: profile } });
   write("session", data.token);
   write("merchant", data.merchant);
   return data.merchant;

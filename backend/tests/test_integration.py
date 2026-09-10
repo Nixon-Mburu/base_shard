@@ -1,6 +1,4 @@
-"""Run against a disposable seeded stack: TEST_BASE_URL=http://localhost:18080 pytest.
-These tests place orders and consume sample stock. They never reset existing data.
-"""
+"""GraphQL contracts against a disposable seeded stack; consumes inventory."""
 
 import os
 from concurrent.futures import ThreadPoolExecutor
@@ -9,140 +7,154 @@ from uuid import uuid4
 import httpx
 import pytest
 
+from common.graphql_documents import DOCUMENTS
+
 BASE = os.environ.get("TEST_BASE_URL")
-pytestmark = pytest.mark.skipif(not BASE, reason="Set TEST_BASE_URL to a disposable running stack")
+pytestmark = pytest.mark.skipif(not BASE, reason="Requires disposable stack")
+PROFILE = {
+    "businessName": "Integration Shop",
+    "owner": "Test Merchant",
+    "phone": "0712345678",
+    "type": "Retail shop",
+    "city": "Nairobi",
+    "address": "Test Street",
+    "point": {"lat": -1.28, "lng": 36.82},
+}
 
 
 @pytest.fixture
 def client():
-    with httpx.Client(base_url=BASE or "http://unused", timeout=30, trust_env=False) as c:
-        yield c
+    with httpx.Client(base_url=BASE or "http://unused", timeout=30, trust_env=False) as client:
+        yield client
+
+
+def gql(client, operation, variables=None, headers=None, error=None):
+    response = client.post(
+        "/graphql",
+        json={"query": DOCUMENTS[operation], "variables": variables or {}},
+        headers=headers or {},
+    )
+    assert response.status_code == 200, response.text
+    result = response.json()
+    if error:
+        assert result["errors"][0]["extensions"]["status"] == error, result
+        return result
+    assert not result.get("errors"), result
+    return result["data"][operation]
 
 
 def merchant(client):
-    profile = {
-        "businessName": "Integration Shop",
-        "owner": "Test Merchant",
-        "phone": "0712345678",
-        "type": "Retail shop",
-        "city": "Nairobi",
-        "address": "Test Street",
-        "point": {"lat": -1.28, "lng": 36.82},
-    }
-    response = client.post("/api/merchants", json=profile)
-    assert response.status_code == 201, response.text
-    data = response.json()
-    return data["merchant"], {"Authorization": "Bearer " + data["token"]}
+    account = gql(client, "createMerchant", {"input": PROFILE})
+    return account["merchant"], {"Authorization": "Bearer " + account["token"]}
 
 
 def stock(client, product):
-    response = client.get("/api/catalog/products")
-    assert response.status_code == 200, response.text
-    return next(p["stock"] for p in response.json() if p["id"] == product)
+    return next(p["stock"] for p in gql(client, "products") if p["id"] == product)
 
 
 def payload(client, product="rice", quantity=1):
     items = [{"id": product, "quantity": quantity}]
-    quote = client.post("/api/catalog/quote", json={"items": items})
-    assert quote.status_code == 200, quote.text
+    quote = gql(client, "quote", {"input": {"items": items}})
     return {
         "items": items,
-        "expected_total": quote.json()["total"],
+        "expectedTotal": quote["total"],
         "method": "mobile",
         "outcome": "success",
     }
 
 
-def place(client, headers, body, key=None):
-    return client.post(
-        "/api/orders", headers={**headers, "Idempotency-Key": key or str(uuid4())}, json=body
+def place(client, headers, body, key=None, error=None):
+    return gql(
+        client, "placeOrder", {"input": body, "idempotencyKey": key or str(uuid4())}, headers, error
     )
 
 
 def test_profile_and_order_ownership(client):
-    m, headers = merchant(client)
-    assert client.get("/api/merchants/me", headers=headers).json()["id"] == m["id"]
-    update = {k: v for k, v in m.items() if k != "id"}
-    update["businessName"] = "Updated Shop"
+    m, auth = merchant(client)
+    assert gql(client, "me", headers=auth)["id"] == m["id"]
     assert (
-        client.put("/api/merchants/me", headers=headers, json=update).json()["businessName"]
-        == "Updated Shop"
+        gql(client, "updateMerchant", {"input": {**PROFILE, "businessName": "Updated"}}, auth)[
+            "businessName"
+        ]
+        == "Updated"
     )
-    assert client.get("/api/orders").status_code == 401
-    assert (
-        client.get("/api/merchants/me", headers={"Authorization": "Bearer invalid"}).status_code
-        == 401
-    )
-    result = place(client, headers, payload(client, "rice")).json()
-    assert result["status"] == "confirmed", result
+    gql(client, "orders", error=401)
+    gql(client, "me", headers={"Authorization": "Bearer invalid"}, error=401)
+    order = place(client, auth, payload(client))
+    assert order["status"] == "confirmed"
     _, other = merchant(client)
-    assert client.get("/api/orders/" + result["id"], headers=other).status_code == 404
-    assert client.get("/api/orders", headers=other).json() == []
-    assert (
-        client.get("/api/orders/" + result["id"], headers=headers).json()["total"]
-        == result["total"]
-    )
+    gql(client, "order", {"id": order["id"]}, other, error=404)
+    assert gql(client, "orders", headers=other) == []
+    assert gql(client, "order", {"id": order["id"]}, auth)["total"] == order["total"]
 
 
-def test_decline_leaves_inventory_unchanged(client):
-    _, headers = merchant(client)
+def test_decline_preserves_stock(client):
+    _, auth = merchant(client)
     before = stock(client, "oil")
-    body = payload(client, "oil")
-    body["outcome"] = "declined"
-    response = place(client, headers, body)
-    assert response.json()["status"] == "declined", response.text
+    assert (
+        place(client, auth, {**payload(client, "oil"), "outcome": "declined"})["status"]
+        == "declined"
+    )
     assert stock(client, "oil") == before
 
 
-def test_duplicate_concurrent_submissions_allocate_once(client):
-    _, headers = merchant(client)
+def test_concurrent_replay_allocates_once(client):
+    _, auth = merchant(client)
     before = stock(client, "tea")
-    body = payload(client, "tea")
-    key = str(uuid4())
+    body, key = payload(client, "tea"), str(uuid4())
     with ThreadPoolExecutor(max_workers=4) as pool:
-        results = list(pool.map(lambda _: place(client, headers, body, key), range(4)))
-    assert all(r.status_code in (200, 201) for r in results), [r.text for r in results]
-    assert len({r.json()["id"] for r in results}) == 1
-    assert all(r.json()["status"] == "confirmed" for r in results)
+        results = list(pool.map(lambda _: place(client, auth, body, key), range(4)))
+    assert len({r["id"] for r in results}) == 1
+    assert all(r["status"] == "confirmed" for r in results)
     assert stock(client, "tea") == before - 1
-    changed = {**body, "method": "card"}
-    assert place(client, headers, changed, key).status_code == 409
+    place(client, auth, {**body, "method": "card"}, key, error=409)
 
 
-def test_stale_price_and_bad_inputs_do_not_allocate(client):
-    _, headers = merchant(client)
+def test_validation_and_stale_price(client):
+    _, auth = merchant(client)
     before = stock(client, "milk")
     body = payload(client, "milk")
-    body["expected_total"] = 1
-    response = place(client, headers, body)
-    assert response.json()["status"] == "rejected", response.text
+    assert place(client, auth, {**body, "expectedTotal": 1})["status"] == "rejected"
     assert stock(client, "milk") == before
     body["items"][0]["quantity"] = -1
-    assert place(client, headers, body).status_code == 422
-    assert (
-        client.post(
-            "/api/catalog/quote", json={"items": [{"id": "missing", "quantity": 1}]}
-        ).status_code
-        == 422
-    )
-    assert (
-        client.post(
-            "/api/catalog/quote", json={"items": [{"id": "rice", "quantity": 10000}]}
-        ).status_code
-        == 409
-    )
-    assert client.post("/api/internal/allocations/" + str(uuid4()), json={}).status_code == 404
-    assert (
-        client.post("/api/catalog/internal/allocations/" + str(uuid4()), json={}).status_code == 404
-    )
+    place(client, auth, body, error=422)
+    gql(client, "quote", {"input": {"items": [{"id": "missing", "quantity": 1}]}}, error=422)
+    gql(client, "order", {"id": "not-a-uuid"}, auth, error=422)
 
 
 def test_concurrent_buyers_cannot_oversell(client):
     before = stock(client, "tissue")
-    assert before > 0, "Use a fresh disposable database for this inventory exhaustion test"
+    assert 0 < before <= 10000, "Use a fresh disposable database"
     body = payload(client, "tissue", before)
     auth = [merchant(client)[1], merchant(client)[1]]
     with ThreadPoolExecutor(max_workers=2) as pool:
-        results = list(pool.map(lambda h: place(client, h, body).json(), auth))
-    assert sorted(r["status"] for r in results) == ["confirmed", "rejected"], results
+        results = list(pool.map(lambda h: place(client, h, body), auth))
+    assert sorted(r["status"] for r in results) == ["confirmed", "rejected"]
     assert stock(client, "tissue") == 0
+
+
+def test_schema_partial_data_aliases_and_private_operations(client):
+    response = client.post(
+        "/graphql",
+        json={
+            "query": "query { inventory: products { ...P } me { id } } fragment P on Product { id name }"
+        },
+    )
+    result = response.json()
+    assert result["data"]["inventory"]
+    assert result["data"]["me"] is None
+    assert result["errors"][0]["extensions"]["status"] == 401
+    for query in [
+        "{ products { unknownField } }",
+        "mutation { allocateStock { total } }",
+        "{ missing }",
+    ]:
+        response = client.post("/graphql", json={"query": query})
+        assert response.status_code == 400
+        assert "data" not in response.json()
+    assert (
+        client.get(
+            "/graphql", params={"query": "mutation { createMerchant { token } }"}
+        ).status_code
+        == 405
+    )

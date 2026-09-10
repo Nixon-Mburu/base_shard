@@ -28,7 +28,14 @@ def http(url, data=None, method=None, auth=None):
 
 def compose(args, env, sudo=False, capture=False):
     command = (
-        (["sudo"] if sudo else [])
+        (
+            [
+                "sudo",
+                "--preserve-env=RUN_ID,LOAD_WORKERS,WORKLOAD,LOCAL_UID,LOCAL_GID,API_CPUS,DB_CPUS,TRACE_SAMPLE_RATIO,LOAD_API_PORT,LOCUST_PORT,PROMETHEUS_PORT,GRAFANA_PORT,GRAFANA_PASSWORD,LOCUST_USER_CLASS,THINK_MIN,THINK_MAX,DECLINE_RATE,MERCHANTS_DB_PASSWORD,CATALOG_DB_PASSWORD,ORDERS_DB_PASSWORD,SERVICE_KEY",
+            ]
+            if sudo
+            else []
+        )
         + [
             "docker",
             "compose",
@@ -111,7 +118,7 @@ def summarize(prometheus, run_id, start, end):
         + "["
         + window
         + "])))",
-        "api_p95_seconds": "histogram_quantile(.95,sum by(le,service_name,route)(increase(base_api_duration_seconds_bucket"
+        "api_p95_seconds": "histogram_quantile(.95,sum by(le,service_name,operation)(increase(base_api_duration_seconds_bucket"
         + api
         + "["
         + window
@@ -202,9 +209,7 @@ def experiment(args, replicas, env):
             args.sudo,
         )
         wait_for(
-            lambda: http(
-                "http://127.0.0.1:" + env.get("LOAD_API_PORT", "18080") + "/api/catalog/products"
-            ),
+            lambda: http("http://127.0.0.1:" + env.get("LOAD_API_PORT", "18080") + "/health"),
             90,
             "API services did not become ready",
         )

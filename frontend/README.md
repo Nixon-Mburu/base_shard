@@ -33,7 +33,7 @@ Each application has its own Dockerfile, package, `src/pages/` and `src/styles/`
 
 The shell loads remote CSS separately and handles load failures with a retry action. Shared files are source-level contracts compiled into each app; rebuild affected apps after changing them. Rebuild a single app with `docker compose up -d --build orders`.
 
-`shared/api.js` provides same-origin JSON requests, bearer-session headers, timeouts, readable API errors, product loading, and merchant saving. Both Vite and the production preview proxy `/api/`; deployed traffic goes through the Nginx API gateway. No product prices or inventory are hardcoded in frontend source.
+`shared/api.js` provides same-origin JSON requests, bearer-session headers, timeouts, readable API errors, product loading, and merchant saving. Both Vite and the production preview proxy `/graphql`; deployed traffic goes through the Nginx API gateway. No product prices or inventory are hardcoded in frontend source.
 
 `shared/store.js` maintains basket quantities, the merchant/session cache, and pending order idempotency keys using `base-grid:*` localStorage keys and change events. This keeps state across remote mounts and reloads. Profiles, stock, orders and final totals are authoritative in the backend. Older frontend-only profiles must be saved once to create a server-side merchant.
 
@@ -57,3 +57,5 @@ BASE_URL=http://localhost:8080 npm run test:e2e
 ```
 
 Browser tests require the real backend and consume demo stock. They cover signup, basket persistence, decline/retry, confirmation, mobile layout, and a lost order response recovered after reload without a duplicate order. Use a disposable test stack as described in the root README.
+
+All remote apps use `shared/api.js` and typed documents in `shared/graphql.json`. The helper checks GraphQL errors even for HTTP 200. Checkout preserves persisted retry keys across reloads.

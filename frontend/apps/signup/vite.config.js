@@ -6,7 +6,7 @@ export default defineConfig({
   server: {
     port: 5174,
     cors: true,
-    proxy: { "/api": process.env.API_PROXY_TARGET || "http://127.0.0.1:8080" },
+    proxy: { "/graphql": process.env.API_PROXY_TARGET || "http://127.0.0.1:8080" },
   },
   build: {
     cssCodeSplit: false,

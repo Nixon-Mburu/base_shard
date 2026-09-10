@@ -2,6 +2,7 @@ import json
 import os
 import random
 from collections import Counter
+from pathlib import Path
 from uuid import uuid4
 
 import gevent
@@ -11,6 +12,8 @@ from prometheus_client import CollectorRegistry, start_http_server
 
 from accounts import Accounts
 from metrics import LocustCollector
+
+DOCUMENTS = json.loads(Path(__file__).with_name("graphql.json").read_text())
 
 
 @events.init.add_listener
@@ -83,12 +86,12 @@ class KenyaMerchant(FastHttpUser):
         self.merchant = self.environment.accounts.next()
         self.auth = {"Authorization": "Bearer " + self.merchant["token"]}
 
-    def call(self, method, path, name, body=None, headers=None, expected=None):
+    def call(self, operation, variables=None, headers=None, expected=None):
         with self.client.request(
-            method,
-            path,
-            name=name,
-            json=body,
+            "POST",
+            "/graphql",
+            name=operation,
+            json={"query": DOCUMENTS[operation], "variables": variables or {}},
             headers=headers or self.auth,
             catch_response=True,
         ) as response:
@@ -96,7 +99,13 @@ class KenyaMerchant(FastHttpUser):
                 response.failure(f"HTTP {response.status_code}")
                 return None
             try:
-                data = response.json()
+                result = response.json()
+                if result.get("errors"):
+                    response.failure(
+                        "GraphQL " + result["errors"][0].get("extensions", {}).get("code", "ERROR")
+                    )
+                    return None
+                data = result["data"][operation]
             except (ValueError, json.JSONDecodeError):
                 response.failure("Invalid JSON")
                 return None
@@ -119,14 +128,14 @@ class KenyaMerchant(FastHttpUser):
         if choice == "browse":
             self.browse()
         elif choice == "profile":
-            self.call("GET", "/api/merchants/me", "/api/merchants/me")
+            self.call("me")
         elif choice == "history":
-            self.call("GET", "/api/orders", "/api/orders")
+            self.call("orders")
         else:
             self.checkout()
 
     def browse(self):
-        data = self.call("GET", "/api/catalog/products", "/api/catalog/products")
+        data = self.call("products")
         if isinstance(data, list):
             self.products = [p for p in data if p["stock"] > 0]
 
@@ -140,7 +149,7 @@ class KenyaMerchant(FastHttpUser):
             candidates = [p for p in candidates if p["id"] == "rice"] or candidates
         product = random.choice(candidates)
         items = [{"id": product["id"], "quantity": random.randint(1, 3)}]
-        quote = self.call("POST", "/api/catalog/quote", "/api/catalog/quote", {"items": items})
+        quote = self.call("quote", {"input": {"items": items}})
         if not isinstance(quote, dict) or "total" not in quote:
             self.products = []
             return
@@ -148,7 +157,7 @@ class KenyaMerchant(FastHttpUser):
             "key": str(uuid4()),
             "body": {
                 "items": items,
-                "expected_total": quote["total"],
+                "expectedTotal": quote["total"],
                 "method": random.choice(["mobile", "card"]),
                 "outcome": "declined"
                 if random.random() < float(os.environ.get("DECLINE_RATE", ".02"))
@@ -161,18 +170,14 @@ class KenyaMerchant(FastHttpUser):
         pending = self.pending
         if "id" in pending:
             order = self.call(
-                "GET",
-                "/api/orders/" + pending["id"],
-                "/api/orders/{id}",
+                "order",
+                {"id": pending["id"]},
                 expected=lambda d: d.get("status") != "rejected",
             )
         else:
             order = self.call(
-                "POST",
-                "/api/orders",
-                "/api/orders",
-                pending["body"],
-                {**self.auth, "Idempotency-Key": pending["key"]},
+                "placeOrder",
+                {"input": pending["body"], "idempotencyKey": pending["key"]},
                 expected=lambda d: d.get("status") in ("pending", "confirmed", "declined"),
             )
         if not isinstance(order, dict) or "status" not in order:
@@ -195,10 +200,8 @@ class RegistrationMerchant(KenyaMerchant):
     def journey(self):
         self.choose_merchant()
         self.call(
-            "POST",
-            "/api/merchants",
-            "/api/merchants",
-            self.merchant["profile"],
+            "createMerchant",
+            {"input": self.merchant["profile"]},
             headers={"Content-Type": "application/json"},
         )
 

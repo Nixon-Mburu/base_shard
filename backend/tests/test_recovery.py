@@ -9,6 +9,21 @@ import psycopg
 import pytest
 from psycopg.types.json import Jsonb
 
+from common.graphql_documents import DOCUMENTS
+
+
+def call(client, url, operation, variables=None, headers=None):
+    response = client.post(
+        url,
+        json={"query": DOCUMENTS[operation], "variables": variables or {}},
+        headers=headers or {},
+    )
+    assert response.status_code == 200, response.text
+    result = response.json()
+    assert not result.get("errors"), result
+    return result["data"][operation]
+
+
 ORDERS_DB = os.environ.get("TEST_ORDERS_DATABASE_URL")
 CATALOG = os.environ.get("TEST_CATALOG_URL")
 BASE = os.environ.get("TEST_BASE_URL")
@@ -28,26 +43,31 @@ def test_recover_after_catalog_commit_before_order_confirmation():
             "address": "Test Street",
             "point": {"lat": -1.28, "lng": 36.82},
         }
-        account = client.post(BASE + "/api/merchants", json=profile).json()
+        account = call(client, BASE + "/graphql", "createMerchant", {"input": profile})
         auth = {"Authorization": "Bearer " + account["token"]}
         items = [{"id": "soap", "quantity": 1}]
-        quote = client.post(BASE + "/api/catalog/quote", json={"items": items}).json()
+        quote = call(client, BASE + "/graphql", "quote", {"input": {"items": items}})
         before = next(
-            p["stock"]
-            for p in client.get(BASE + "/api/catalog/products").json()
-            if p["id"] == "soap"
+            p["stock"] for p in call(client, BASE + "/graphql", "products") if p["id"] == "soap"
         )
         order_id = uuid4()
         body = {"items": items, "expected_total": quote["total"]}
-        assert (
-            client.post(CATALOG + f"/internal/allocations/{order_id}", json=body).status_code == 403
+        variables = {
+            "id": str(order_id),
+            "input": {"items": items, "expectedTotal": quote["total"]},
+        }
+        denied = client.post(
+            CATALOG + "/internal/graphql",
+            json={"query": DOCUMENTS["allocateStock"], "variables": variables},
         )
-        allocation = client.post(
-            CATALOG + f"/internal/allocations/{order_id}",
-            json=body,
-            headers={"X-Service-Key": os.environ["TEST_SERVICE_KEY"]},
+        assert denied.status_code == 403
+        call(
+            client,
+            CATALOG + "/internal/graphql",
+            "allocateStock",
+            variables,
+            {"X-Service-Key": os.environ["TEST_SERVICE_KEY"]},
         )
-        assert allocation.status_code == 200, allocation.text
         # Reproduce the durable state of a crash after catalog committed but
         # before the orders transaction recorded confirmation.
         with psycopg.connect(ORDERS_DB) as db:
@@ -62,15 +82,13 @@ def test_recover_after_catalog_commit_before_order_confirmation():
                 ),
             )
         for _ in range(40):
-            order = client.get(BASE + f"/api/orders/{order_id}", headers=auth).json()
+            order = call(client, BASE + "/graphql", "order", {"id": str(order_id)}, auth)
             if order["status"] == "confirmed":
                 break
             time.sleep(0.25)
         assert order["status"] == "confirmed", order
         assert order["total"] == quote["total"]
         after = next(
-            p["stock"]
-            for p in client.get(BASE + "/api/catalog/products").json()
-            if p["id"] == "soap"
+            p["stock"] for p in call(client, BASE + "/graphql", "products") if p["id"] == "soap"
         )
         assert after == before - 1

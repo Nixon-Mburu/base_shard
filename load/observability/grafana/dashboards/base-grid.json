@@ -855,8 +855,8 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "histogram_quantile(.95,sum by(le,service_name,route)(rate(base_api_duration_seconds_bucket{service_name=~\"$service\",benchmark_run_id=~\"$run_id\"}[$__rate_interval])))",
-          "legendFormat": "{{service_name}} \u00b7 {{route}}"
+          "expr": "histogram_quantile(.95,sum by(le,service_name,operation)(rate(base_api_duration_seconds_bucket{service_name=~\"$service\",benchmark_run_id=~\"$run_id\"}[$__rate_interval])))",
+          "legendFormat": "{{service_name}} \u00b7 {{operation}}"
         }
       ],
       "fieldConfig": {
@@ -958,7 +958,7 @@
     {
       "id": 18,
       "type": "timeseries",
-      "title": "Server 5xx ratio",
+      "title": "GraphQL / HTTP error ratio",
       "description": "",
       "gridPos": {
         "x": 12,
@@ -973,7 +973,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum by(service_name)(rate(base_api_requests_total{service_name=~\"$service\",benchmark_run_id=~\"$run_id\",status=~\"5..\"}[$__rate_interval])) / clamp_min(sum by(service_name)(rate(base_api_requests_total{service_name=~\"$service\",benchmark_run_id=~\"$run_id\"}[$__rate_interval])),.001)",
+          "expr": "sum by(service_name)(rate(base_api_requests_total{service_name=~\"$service\",benchmark_run_id=~\"$run_id\",outcome=\"error\"}[$__rate_interval])) / clamp_min(sum by(service_name)(rate(base_api_requests_total{service_name=~\"$service\",benchmark_run_id=~\"$run_id\"}[$__rate_interval])),.001)",
           "legendFormat": "{{service_name}}"
         }
       ],
@@ -1032,19 +1032,19 @@
       "targets": [
         {
           "refId": "p50",
-          "expr": "histogram_quantile(0.5,sum by(le,service_name,method,route)(rate(base_api_duration_seconds_bucket{service_name=~\"$service\",benchmark_run_id=~\"$run_id\"}[$__rate_interval])))",
+          "expr": "histogram_quantile(0.5,sum by(le,service_name,method,operation)(rate(base_api_duration_seconds_bucket{service_name=~\"$service\",benchmark_run_id=~\"$run_id\"}[$__rate_interval])))",
           "format": "table",
           "instant": true
         },
         {
           "refId": "p95",
-          "expr": "histogram_quantile(0.95,sum by(le,service_name,method,route)(rate(base_api_duration_seconds_bucket{service_name=~\"$service\",benchmark_run_id=~\"$run_id\"}[$__rate_interval])))",
+          "expr": "histogram_quantile(0.95,sum by(le,service_name,method,operation)(rate(base_api_duration_seconds_bucket{service_name=~\"$service\",benchmark_run_id=~\"$run_id\"}[$__rate_interval])))",
           "format": "table",
           "instant": true
         },
         {
           "refId": "p99",
-          "expr": "histogram_quantile(0.99,sum by(le,service_name,method,route)(rate(base_api_duration_seconds_bucket{service_name=~\"$service\",benchmark_run_id=~\"$run_id\"}[$__rate_interval])))",
+          "expr": "histogram_quantile(0.99,sum by(le,service_name,method,operation)(rate(base_api_duration_seconds_bucket{service_name=~\"$service\",benchmark_run_id=~\"$run_id\"}[$__rate_interval])))",
           "format": "table",
           "instant": true
         }

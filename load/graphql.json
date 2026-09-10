@@ -1,0 +1,10 @@
+{
+  "me": "query Me { me { id businessName owner type city phone address point { lat lng } } }",
+  "products": "query Products { products { id name category unit price stock icon tag color } }",
+  "quote": "query Quote($input: BasketInput!) { quote(input: $input) { items { id name category unit price stock icon tag color quantity } subtotal delivery total count currency } }",
+  "orders": "query Orders($limit: Int) { orders(limit: $limit) { id merchant { id businessName owner type city phone address point { lat lng } } method status error createdAt paymentSimulated deliveryStatus items { id name category unit price stock icon tag color quantity } subtotal delivery total count currency } }",
+  "order": "query Order($id: ID!) { order(id: $id) { id merchant { id businessName owner type city phone address point { lat lng } } method status error createdAt paymentSimulated deliveryStatus items { id name category unit price stock icon tag color quantity } subtotal delivery total count currency } }",
+  "createMerchant": "mutation CreateMerchant($input: MerchantInput!) { createMerchant(input: $input) { token merchant { id businessName owner type city phone address point { lat lng } } } }",
+  "updateMerchant": "mutation UpdateMerchant($input: MerchantInput!) { updateMerchant(input: $input) { id businessName owner type city phone address point { lat lng } } }",
+  "placeOrder": "mutation PlaceOrder($input: OrderInput!, $idempotencyKey: ID!) { placeOrder(input: $input, idempotencyKey: $idempotencyKey) { id merchant { id businessName owner type city phone address point { lat lng } } method status error createdAt paymentSimulated deliveryStatus items { id name category unit price stock icon tag color quantity } subtotal delivery total count currency } }"
+}

@@ -5,7 +5,7 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      "/api": process.env.API_PROXY_TARGET || "http://127.0.0.1:8080",
+      "/graphql": process.env.API_PROXY_TARGET || "http://127.0.0.1:8080",
       "/mfe/signup": "http://localhost:5174",
       "/mfe/orders": "http://localhost:5175",
       "/mfe/checkout": "http://localhost:5176",

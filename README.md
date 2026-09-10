@@ -1,6 +1,6 @@
 # Base Grid
 
-A merchant inventory storefront built with React microfrontends, FastAPI microservices, PostgreSQL, and Nginx. Merchants register a business and delivery pin, browse inventory, and place persistent orders using simulated payments.
+A merchant inventory storefront built with React microfrontends, GraphQL/FastAPI microservices, PostgreSQL, and Nginx. Merchants register a business and delivery pin, browse inventory, and place persistent orders using simulated payments.
 
 ## Start the complete app
 
@@ -32,8 +32,9 @@ Database volumes survive rebuilds and `down`. **Do not add `-v` unless you inten
 | `merchants-api` | Business/contact details, OSM coordinates, browser session | `merchants-db` |
 | `catalog-api` | Products, prices, stock, quotes, atomic allocation | `catalog-db` |
 | `orders-api` | Merchant-owned orders, simulated payment outcome, retry/recovery | `orders-db` |
-| `api-gateway` | Nginx routes `/api/merchants`, `/api/catalog`, `/api/orders` | — |
-| `gateway` | Public Nginx serves shell routes, microfrontends, and proxies `/api/` | — |
+| `graphql-gateway` | Composes typed merchant, catalog and order GraphQL operations | — |
+| `api-gateway` | Nginx routes `/graphql` to gateway replicas | — |
+| `gateway` | Public Nginx serves shell routes, microfrontends, and proxies `/graphql` | — |
 | `shell`, `signup`, `orders`, `checkout` | Independently built React microfrontends served by Nginx | — |
 
 Each backend API has its own Dockerfile, application code, SQL migrations, and PostgreSQL container/volume. Each database sits on a private service-specific network. Only the public gateway publishes a host port. Services communicate over HTTP and never query another service's database.
@@ -43,9 +44,10 @@ flowchart LR
   Browser --> Web[Public Nginx :8080]
   Web --> Frontend[React shell + microfrontends]
   Web --> API[Nginx API gateway]
-  API --> Merchants[Merchants API]
-  API --> Catalog[Catalog / inventory API]
-  API --> Orders[Orders API]
+  API --> GQL[GraphQL gateway]
+  GQL --> Merchants[Merchants API]
+  GQL --> Catalog[Catalog / inventory API]
+  GQL --> Orders[Orders API]
   Merchants --> MDB[(Merchant PostgreSQL)]
   Catalog --> CDB[(Catalog PostgreSQL)]
   Orders --> ODB[(Orders PostgreSQL)]
@@ -116,3 +118,7 @@ Validated locally with PostgreSQL 18 and Nginx: merchant/profile persistence and
 Payments are simulated M-Pesa/card outcomes; no funds are charged. Delivery is not dispatched. This is a local development foundation: it has bearer-session isolation, but no password/OTP login, session recovery or revocation, production TLS, replenishment, or real payment-provider integration. Protect tokens as credentials. Shared deployments need proper authentication and secret management; the supplied credentials and internal service key are local defaults.
 
 See [backend API details](backend/README.md) and [frontend architecture](frontend/README.md).
+
+## Load testing and observability
+
+The [Kenya performance lab](load/README.md) provides 100,000 synthetic merchants across 47 counties, distributed Locust workloads, OpenTelemetry traces/metrics, Prometheus, Tempo, and a provisioned Grafana dashboard. It runs as the isolated `base-grid-load` Compose project and includes repeatable API-replica experiments.

@@ -9,7 +9,8 @@ from fastapi import Depends, FastAPI, Header, HTTPException, Query, Response
 from psycopg.types.json import Jsonb
 
 from common.db import connect, migrate
-from common.http import add_database_errors, merchant_session, request
+from common.graphql_api import allocation_input, mount
+from common.http import add_database_errors, graphql_request, merchant_session
 from common.models import OrderRequest
 from common.telemetry import configure
 
@@ -18,6 +19,7 @@ logger = logging.getLogger("base_grid.orders")
 
 def serialize(row):
     return {
+        "items": [],
         **(row["summary"] or {}),
         "id": str(row["id"]),
         "merchant": row["merchant"],
@@ -39,14 +41,17 @@ def process(order_id):
             return serialize(row)
         payload = row["request"]
         try:
-            summary = request(
-                "POST",
-                os.environ["CATALOG_URL"] + f"/internal/allocations/{order_id}",
-                headers={"X-Service-Key": os.environ["SERVICE_KEY"]},
-                json={
-                    "items": payload["items"],
-                    "expected_total": payload["expected_total"],
+            summary = graphql_request(
+                os.environ["CATALOG_URL"] + "/internal/graphql",
+                "allocateStock",
+                {
+                    "id": str(order_id),
+                    "input": {
+                        "items": payload["items"],
+                        "expectedTotal": payload["expected_total"],
+                    },
                 },
+                {"X-Service-Key": os.environ["SERVICE_KEY"]},
             )
         except HTTPException as exc:
             if exc.status_code not in (409, 422):
@@ -110,7 +115,6 @@ def health():
     return {"status": "ok", "service": "orders"}
 
 
-@app.post("/api/orders")
 def create(
     payload: OrderRequest,
     response: Response,
@@ -151,7 +155,6 @@ def create(
     return result
 
 
-@app.get("/api/orders")
 def list_orders(limit: int = Query(default=30, ge=1, le=100), merchant=Depends(merchant_session)):
     with connect() as db:
         rows = db.execute(
@@ -161,7 +164,6 @@ def list_orders(limit: int = Query(default=30, ge=1, le=100), merchant=Depends(m
     return [serialize(row) for row in rows]
 
 
-@app.get("/api/orders/{order_id}")
 def get_order(order_id: UUID, merchant=Depends(merchant_session)):
     with connect() as db:
         row = db.execute(
@@ -171,3 +173,26 @@ def get_order(order_id: UUID, merchant=Depends(merchant_session)):
     if not row:
         raise HTTPException(404, "Order not found")
     return serialize(row)
+
+
+def session(info):
+    return merchant_session(info.context.headers.get("authorization", ""))
+
+
+def resolve_orders(_, info, limit=30):
+    if limit is None:
+        limit = 30
+    if not 1 <= limit <= 100:
+        raise HTTPException(422, "Limit must be between 1 and 100")
+    return list_orders(limit, session(info))
+
+
+mount(
+    app,
+    {"orders": resolve_orders, "order": lambda _, info, id: get_order(UUID(id), session(info))},
+    {
+        "placeOrder": lambda _, info, input, idempotencyKey: create(
+            OrderRequest(**allocation_input(input)), Response(), UUID(idempotencyKey), session(info)
+        )
+    },
+)

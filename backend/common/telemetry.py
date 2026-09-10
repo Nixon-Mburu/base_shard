@@ -44,6 +44,10 @@ class RequestMetrics:
             # Never use raw URLs: UUIDs and query strings must not create series.
             route = getattr(scope.get("route"), "path", "unmatched")
             attributes = {"route": route, "method": scope["method"], "status": str(status)}
+            attributes["operation"] = scope.get("graphql.operation", "none")
+            attributes["outcome"] = scope.get(
+                "graphql.outcome", "error" if status >= 400 else "success"
+            )
             self.requests.add(1, attributes)
             self.duration.record(time.perf_counter() - start, attributes)
 

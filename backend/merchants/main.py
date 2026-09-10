@@ -8,6 +8,7 @@ from fastapi import Depends, FastAPI, Header, HTTPException
 from psycopg.types.json import Jsonb
 
 from common.db import connect, migrate
+from common.graphql_api import mount
 from common.http import add_database_errors
 from common.models import Merchant
 from common.telemetry import configure
@@ -49,7 +50,6 @@ def health():
     return {"status": "ok", "service": "merchants"}
 
 
-@app.post("/api/merchants", status_code=201)
 def create(profile: Merchant):
     token = secrets.token_urlsafe(48)
     merchant_id = uuid4()
@@ -68,12 +68,10 @@ def create(profile: Merchant):
     }
 
 
-@app.get("/api/merchants/me")
 def me(merchant=Depends(current)):
     return merchant
 
 
-@app.put("/api/merchants/me")
 def update(profile: Merchant, merchant=Depends(current)):
     with connect() as db:
         db.execute(
@@ -81,3 +79,15 @@ def update(profile: Merchant, merchant=Depends(current)):
             (Jsonb(profile.model_dump()), merchant["id"]),
         )
     return {**profile.model_dump(), "id": merchant["id"]}
+
+
+mount(
+    app,
+    {"me": lambda _, info: current(info.context.headers.get("authorization", ""))},
+    {
+        "createMerchant": lambda _, info, input: create(Merchant(**input)),
+        "updateMerchant": lambda _, info, input: update(
+            Merchant(**input), current(info.context.headers.get("authorization", ""))
+        ),
+    },
+)

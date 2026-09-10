@@ -6,7 +6,7 @@ export default function OrderHistory() {
   const [error, setError] = useState("");
   useEffect(() => {
     const controller = new AbortController();
-    api("/orders", { signal: controller.signal })
+    api("orders", { signal: controller.signal })
       .then(setOrders)
       .catch((e) => {
         if (!controller.signal.aborted) setError(e.message);
@@ -41,7 +41,7 @@ export default function OrderHistory() {
             </small>
           </div>
           <span className="pill">{o.status}</span>
-          <strong>{o.total !== undefined ? money(o.total) : "—"}</strong>
+          <strong>{o.total != null ? money(o.total) : "—"}</strong>
           {o.error && <small className="muted">{o.error}</small>}
         </div>
       ))}

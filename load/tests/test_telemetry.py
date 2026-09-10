@@ -20,16 +20,27 @@ def test_metrics_normalize_route_ids_and_record_failures():
     duration = Instrument()
 
     async def app(scope, receive, send):
-        scope["route"] = SimpleNamespace(path="/api/orders/{order_id}")
-        await send({"type": "http.response.start", "status": 503})
+        scope["route"] = SimpleNamespace(path="/graphql")
+        scope["graphql.operation"] = "placeOrder"
+        scope["graphql.outcome"] = "error"
+        await send({"type": "http.response.start", "status": 200})
 
-    scope = {"type": "http", "path": "/api/orders/private-id", "method": "GET"}
+    scope = {"type": "http", "path": "/graphql", "method": "POST"}
 
     async def send(message):
         pass
 
     asyncio.run(RequestMetrics(app, requests, duration)(scope, None, send))
     assert requests.values == [
-        (1, {"route": "/api/orders/{order_id}", "method": "GET", "status": "503"})
+        (
+            1,
+            {
+                "route": "/graphql",
+                "method": "POST",
+                "status": "200",
+                "operation": "placeOrder",
+                "outcome": "error",
+            },
+        )
     ]
     assert duration.values[0][0] >= 0

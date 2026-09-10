@@ -42,11 +42,10 @@ export default function Checkout({ navigate }) {
     setQuoteError("");
     if (!Object.keys(cart).length) return;
     setQuoting(true);
-    api("/catalog/quote", {
-      method: "POST",
-      body: {
+    api("quote", {
+      variables: { input: {
         items: Object.entries(cart).map(([id, quantity]) => ({ id, quantity })),
-      },
+      } },
       signal: controller.signal,
     })
       .then(setQuote)
@@ -91,14 +90,13 @@ export default function Checkout({ navigate }) {
         write("order-attempt", current);
         setAttempt(current);
       }
-      let order = await api("/orders", {
-        method: "POST",
-        body: current.payload,
-        headers: { "Idempotency-Key": current.key },
+      const { expected_total, ...input } = current.payload;
+      let order = await api("placeOrder", {
+        variables: { input: { ...input, expectedTotal: expected_total }, idempotencyKey: current.key },
       });
       for (let i = 0; order.status === "pending" && i < 8; i++) {
         await new Promise((resolve) => setTimeout(resolve, 1500));
-        order = await api("/orders/" + order.id);
+        order = await api("order", { variables: { id: order.id } });
       }
       if (order.status === "pending") {
         setError(
