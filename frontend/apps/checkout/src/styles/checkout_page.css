@@ -1,0 +1,250 @@
+.back-link {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  margin-bottom: 26px;
+}
+.checkout-page .page-heading p {
+  font-size: 13px;
+}
+.checkout-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.8fr) minmax(270px, 1fr);
+  gap: 25px;
+}
+.checkout-layout h2 {
+  font-size: 19px;
+}
+.checkout-layout > .card {
+  align-self: start;
+}
+.order-line {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 18px 0;
+  border-top: 1px solid var(--border);
+}
+.line-art {
+  width: 65px;
+  background: #faf8fc;
+  border-radius: 7px;
+  flex-shrink: 0;
+}
+.line-art .product-art {
+  height: 64px;
+}
+.line-name {
+  flex: 1;
+}
+.line-name h3 {
+  font-size: 13px;
+  margin: 0 0 5px;
+}
+.line-name p {
+  font-size: 10px;
+  color: var(--muted);
+  margin: 0 0 4px;
+}
+.line-name > span {
+  font-size: 10px;
+  color: #a593b2;
+}
+.order-line > strong {
+  font-size: 12px;
+  min-width: 75px;
+  text-align: right;
+}
+.delivery-card,
+.payment-card {
+  margin-top: 23px;
+}
+.delivery-card h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.delivery-card > .row {
+  margin-bottom: 13px;
+}
+.delivery-card h2 {
+  margin: 0;
+}
+.delivery-card > strong {
+  font-size: 14px;
+}
+.delivery-card p {
+  font-size: 12px;
+  margin: 9px 0 15px;
+}
+.delivery-card .notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+}
+.payment-card > p {
+  font-size: 12px;
+}
+.payment-methods {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.payment-option {
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px 10px;
+  cursor: pointer;
+  color: #8c7b9b;
+}
+.payment-option.selected {
+  border-color: #b48bdd;
+  background: #fcf9ff;
+  color: var(--purple);
+}
+.payment-option input {
+  accent-color: var(--purple);
+}
+.payment-option strong {
+  font-size: 13px;
+}
+.payment-option small {
+  display: block;
+  font-size: 9px;
+  margin-top: 4px;
+  color: var(--muted);
+}
+.simulation-control {
+  margin: 22px 0 10px;
+  font-size: 12px;
+}
+.simulation-caption {
+  font-size: 10px !important;
+  color: #a390b1;
+  margin-bottom: 0;
+}
+.summary-card {
+  position: sticky;
+  top: 25px;
+}
+.summary-card > .row {
+  margin: 19px 0;
+  font-size: 13px;
+  color: #857290;
+}
+.summary-card > .row strong {
+  color: #403048;
+  font-size: 13px;
+}
+.delivery-threshold {
+  font-size: 10px;
+  color: #9c88ac;
+  line-height: 1.6;
+}
+.summary-card > .grand-total {
+  font-size: 16px;
+  color: #382741;
+}
+.summary-card > .grand-total strong {
+  font-size: 23px;
+  color: var(--purple);
+}
+.summary-hint {
+  font-size: 10px;
+  margin-bottom: 22px;
+}
+.payment-disclaimer {
+  text-align: center;
+  font-size: 10px;
+  color: #a38faf;
+  margin: 15px 0 0;
+  line-height: 1.7;
+}
+.payment-disclaimer svg {
+  vertical-align: middle;
+  margin-right: 4px;
+}
+.receipt {
+  max-width: 570px;
+  margin: 25px auto;
+  text-align: center;
+  padding: 40px;
+}
+.success-icon {
+  background: #f3eafb;
+  color: var(--purple);
+  height: 75px;
+  width: 75px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  margin: 0 auto 25px;
+}
+.receipt h1 {
+  font-size: 33px;
+}
+.receipt-details {
+  text-align: left;
+  margin: 25px 0;
+  background: #fcfaff;
+  padding: 20px;
+  border-radius: 10px;
+}
+.receipt-details .row {
+  font-size: 13px;
+  margin: 12px 0;
+  align-items: flex-start;
+}
+.receipt-details .row strong {
+  text-align: right;
+}
+.receipt-details p {
+  font-size: 12px;
+  margin-bottom: 0;
+}
+.receipt > .muted {
+  font-size: 14px;
+}
+@media (max-width: 1150px) {
+  .checkout-layout {
+    grid-template-columns: 1fr;
+  }
+  .summary-card {
+    position: static;
+  }
+  .order-line > strong {
+    margin-left: auto;
+  }
+}
+@media (max-width: 540px) {
+  .checkout-page .page-heading {
+    flex-direction: column;
+  }
+  .order-line {
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .line-art {
+    width: 48px;
+  }
+  .line-name {
+    min-width: 130px;
+  }
+  .order-line .quantity {
+    margin-left: 56px;
+  }
+  .order-line > strong {
+    min-width: 65px;
+  }
+  .payment-methods {
+    grid-template-columns: 1fr;
+  }
+  .receipt {
+    padding: 25px 18px;
+  }
+}

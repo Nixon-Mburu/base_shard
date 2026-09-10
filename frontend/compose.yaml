@@ -1,0 +1,39 @@
+name: base-grid-frontend
+services:
+  gateway:
+    image: nginx:1.28-alpine
+    ports:
+      - "${FRONTEND_PORT:-8080}:80"
+    volumes:
+      - ./nginx/gateway.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      shell: { condition: service_healthy }
+      signup: { condition: service_healthy }
+      orders: { condition: service_healthy }
+      checkout: { condition: service_healthy }
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/health"]
+      interval: 15s
+      timeout: 3s
+      retries: 3
+  shell:
+    build:
+      context: .
+      dockerfile: apps/shell/Dockerfile
+    restart: unless-stopped
+  signup:
+    build:
+      context: .
+      dockerfile: apps/signup/Dockerfile
+    restart: unless-stopped
+  orders:
+    build:
+      context: .
+      dockerfile: apps/orders/Dockerfile
+    restart: unless-stopped
+  checkout:
+    build:
+      context: .
+      dockerfile: apps/checkout/Dockerfile
+    restart: unless-stopped
